@@ -6,7 +6,6 @@ from flask import g
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 
 from app.config import Config
-from app.model.district import District
 from app.model.enter import Enter
 
 from . import db, auth
@@ -40,10 +39,15 @@ class User(db.Model):
         :return: token
         """
         s = Serializer(Config.SECRET_KEY, expiration)
-        # return s.dumps({'username': self.username}).decode('utf-8')
-        return s.dumps({'userId': self.userId, 'userName': self.userName, 'realName': self.realName,
-                        'passWord': self.passWord, 'globalLevel': self.globalLevel,
-                        'userLevel': self.userLevel, 'districts': ','.join(self.get_district_code_list())}).decode('utf-8')
+        return s.dumps({
+            'userId': self.userId,
+            'userName': self.userName,
+            'realName': self.realName,
+            'passWord': self.passWord,
+            'globalLevel': self.globalLevel,
+            'userLevel': self.userLevel,
+            'districts': ','.join(self.get_district_code_list())
+        }).decode('utf-8')
 
     @staticmethod
     @auth.verify_token
@@ -71,16 +75,11 @@ class User(db.Model):
         if user['globalLevel'] == 'province':
             if user['userLevel'] == '1':
                 return Enter.cityCode.in_(user['districts'].split(','))
-                # return Enter.cityCode == user['districts']
             if user['userLevel'] == '2':
                 return Enter.areaCode.in_(user['districts'].split(','))
-                # return Enter.areaCode == user['districts']
             if user['userLevel'] == '3':
                 return Enter.countyCode.in_(user['districts'].split(','))
-                # return Enter.countyCode == user['districts']
         if user['globalLevel'] == 'city' or 'county':
             return Enter.areaCode.in_(user['districts'].split(','))
-            # return Enter.areaCode == user['districts']
         if user['globalLevel'] == 'industrialPark':
             return Enter.countyCode.in_(user['districts'].split(','))
-            # return Enter.countyCode == user['districts']
