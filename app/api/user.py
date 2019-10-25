@@ -8,7 +8,7 @@ from werkzeug.routing import ValidationError
 from app.api import api
 from app.model import db, auth
 from app.model.user import User
-from app.util.common import valid_username, valid_password, valid_email
+from app.util.common import valid_username, valid_password, valid_email, metric
 
 
 def username(username_str):
@@ -39,7 +39,7 @@ user_fields = {
     'passWord': fields.String,
     'globalLevel': fields.String,
     'userLevel': fields.String,
-    'districts': fields.String
+    'districts': fields.String(attribute=lambda user: ','.join(user.get_district_code_list())),
 }
 
 user_collection_fields = {
@@ -66,6 +66,7 @@ class UserResource(Resource):
         self.parser.add_argument('nickname', type=str)
         super(UserResource, self).__init__()
 
+    @metric
     @marshal_with(user_fields)
     def get(self, id=None, username=None):
         if id is not None:
@@ -74,6 +75,7 @@ class UserResource(Resource):
             user = User.query.filter_by(username=username).first()
         return user
 
+    @metric
     @marshal_with(user_fields)
     def put(self, id):
         args = self.parser.parse_args()
@@ -87,6 +89,7 @@ class UserResource(Resource):
 
 class UserCollectionResource(Resource):
 
+    @metric
     @marshal_with(user_collection_fields)
     def get(self):
         parser = reqparse.RequestParser()
@@ -97,6 +100,7 @@ class UserCollectionResource(Resource):
         return {'total': pagination.total, 'page': pagination.page, 'per_page': pagination.per_page, 'has_next': pagination.has_next,
                 'items': pagination.items}
 
+    @metric
     @marshal_with(user_fields)
     def post(self):
         parser = reqparse.RequestParser()
@@ -114,6 +118,7 @@ class UserCollectionResource(Resource):
 
 
 class UserLoginResource(Resource):
+    @metric
     @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
