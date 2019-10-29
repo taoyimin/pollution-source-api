@@ -4,63 +4,74 @@
 # Time  :2019/10/22 16:05
 from flask import g
 from flask_restful import marshal_with, Resource, fields, reqparse
+from sqlalchemy import func
 
 from app.api import api
-from app.api.monitor import monitor_fields
 from app.model import auth, db
-from app.model.district import District
 from app.model.enter import Enter
-from app.model.user import User
-from app.util.common import metric
+from app.util.common import metric, filter_none
 
-enter_fields = {
+enter_item_fields = {
     'enterId': fields.Integer,
     'enterName': fields.String,
-    'enterAddress': fields.String
-    # 'monitors': fields.List(fields.Nested(monitor_fields)),
+    'enterAddress': fields.String,
+    'attentionLevel': fields.String,
+    'enterType': fields.String,
+    'industryTypeStr': fields.String(
+        attribute=lambda enter:
+        db.session.query(func.enterprise_archives.dbo.getAreaOrInstulyName(enter.industryType, 'industry')).first()[0])
 }
 
-enter_collection_fields = {
-    'total': fields.Integer,
-    'items': fields.List(fields.Nested(enter_fields)),
-    'page': fields.Integer,
-    'per_page': fields.Integer,
-    'has_next': fields.Boolean
+enter_list_fields = {
+    'total': fields.Integer(attribute=lambda pagination: pagination.total),
+    'currentPage': fields.Integer(attribute=lambda pagination: pagination.page),
+    'pageSize': fields.Integer(attribute=lambda pagination: pagination.per_page),
+    'hasNext': fields.Boolean(attribute=lambda pagination: pagination.has_next),
+    'list': fields.List(fields.Nested(enter_item_fields), attribute=lambda pagination: pagination.items)
 }
 
 
 class EnterResource(Resource):
 
     @metric
-    @marshal_with(enter_fields)
+    @marshal_with(enter_item_fields)
     def get(self, enter_id):
         """
         查询单个企业的信息
         :param enter_id:
         :return: 企业实体类
         """
-        return Enter.query.get(enter_id)
+        return Enter.query.get_or_404(enter_id)
 
 
 class EnterCollectionResource(Resource):
     decorators = [auth.login_required]
 
     @metric
-    @marshal_with(enter_collection_fields)
+    @marshal_with(enter_list_fields)
     def get(self):
         """
         获取企业集合信息
         :return: 企业集合
         """
         parser = reqparse.RequestParser()
-        parser.add_argument('page', type=int, default=1)
-        parser.add_argument('per_page', type=int, default=20)
+        parser.add_argument('currentPage', type=int, default=1)
+        parser.add_argument('pageSize', type=int, default=20)
+        parser.add_argument('enterName', default=None)
+        parser.add_argument('areaCode', default=None)
+        parser.add_argument('enterType', default=None)
+        parser.add_argument('attentionLevel', default=None)
+        parser.add_argument('state', default=None)
         args = parser.parse_args()
-        pagination = Enter.query.filter(Enter.areaCode.in_(g.user['districts'].split(','))).paginate(
-            args['page'], args['per_page'], False)
-        return {'total': pagination.total, 'page': pagination.page, 'per_page': pagination.per_page,
-                'has_next': pagination.has_next,
-                'items': pagination.items}
+        state = args.pop('state')
+        current_page = args.pop('currentPage')
+        page_size = args.pop('pageSize')
+        query = Enter.query.order_by(Enter.enterId).filter_by(**filter_none(args))
+        if state == 'online':
+            # 把在线企业过滤出来
+            pass
+        return query.filter(g.user.get_district_criterion()).paginate(
+            current_page, page_size, False)
 
 
 api.add_resource(EnterResource, '/enters/<int:enter_id>')
