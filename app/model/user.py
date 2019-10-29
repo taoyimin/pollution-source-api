@@ -3,7 +3,8 @@
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
 from flask import g
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from flask_restful import abort
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 
 from app.config import Config
 from app.model.enter import Enter
@@ -44,16 +45,25 @@ class User(db.Model):
     @staticmethod
     @auth.verify_token
     def verify_token(token):
+        """
+        验证token
+        :param token:
+        :return:
+        """
         if not token:
             return False
         g.user = None
         s = Serializer(Config.SECRET_KEY)
         try:
             data = s.loads(token.encode('utf-8'))
-        except:
+        except SignatureExpired:
+            abort(401, message='token过期')
+            return False
+        except BadSignature:
+            abort(401, message='token无效')
             return False
         if data:
-            g.user = User.query.get_or_404(data['id'])
+            g.user = User.query.get_or_404(data['id'], description='token验证错误，id=%d的用户不存在' % data['id'])
             return True
         return False
 
