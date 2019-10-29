@@ -23,6 +23,9 @@ class Enter(db.Model):
     cityCode = db.Column('City_Code')
     areaCode = db.Column('Area_Code')
     countyCode = db.Column('County_Code')
+    attentionLevel = db.Column('Attention_Level')
+    enterType = db.Column('Enterprise_type')
+    industryType = db.Column('Industry_Type')
     monitors = db.relationship('Monitor', order_by='Monitor.monitorId', lazy='dynamic')
 
     def __repr__(self):
