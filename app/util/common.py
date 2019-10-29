@@ -4,31 +4,60 @@
 # Time  :2019/4/28 17:16
 
 import functools
-import re
 import time
 
+from sqlalchemy import inspect, event
+from sqlalchemy.orm import Query
+from werkzeug.routing import ValidationError
 
-def valid_username(username):
-    # 账号不能小于6位，不能有空字符串
-    if len(username) < 6 or ' ' in username:
-        return False
+from app.model.user import User
+
+
+@event.listens_for(Query, "before_compile", retval=True)
+def before_compile(query):
+    """
+    查询前默认把数据库逻辑删除的数据过滤掉
+    :param query:
+    :return:
+    """
+    for ent in query.column_descriptions:
+        entity = ent['entity']
+        if entity is None:
+            continue
+        insp = inspect(ent['entity'])
+        mapper = getattr(insp, 'mapper', None)
+        if mapper and issubclass(mapper.class_, User):
+            query = query.enable_assertions(False).filter(
+                ent['entity'].state == 0)
+    return query
+
+
+def valid_user_name(user_name_str):
+    if len(user_name_str) < 6 or ' ' in user_name_str:
+        raise ValidationError("账号不能小于6位，不能有空字符串")
     else:
-        return True
+        return user_name_str
 
 
-def valid_password(password):
-    # 密码不能小于6位，不能有空字符串
-    if len(password) < 6 or ' ' in password:
-        return False
+def valid_pass_word(pass_word_str):
+    if len(pass_word_str) < 6 or ' ' in pass_word_str:
+        raise ValidationError("密码不能小于6位，不能有空字符串")
     else:
-        return True
+        return pass_word_str
 
 
-def valid_email(email):
-    if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', email):
-        return True
+def valid_not_empty(string):
+    if string:
+        return string
     else:
-        return False
+        raise ValidationError("参数不能为空值")
+
+
+# def valid_email(email):
+#     if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', email):
+#         return True
+#     else:
+#         return False
 
 
 def metric(func):
@@ -47,5 +76,21 @@ def metric(func):
     return wrapper
 
 
-if __name__ == '__main__':
-    valid_email(input('please input a email address:'))
+def filter_none(data):
+    """
+    过滤字典中的空值并返回
+    :param data: 待过滤的字典
+    :return:
+    """
+    for k in list(data.keys()):
+        if not data[k]:
+            del data[k]
+    return data
+
+
+# def _json_object_hook(d):
+#     return namedtuple('X', d.keys())(*d.values())
+#
+#
+# def json2obj(data):
+#     return json.loads(data, object_hook=_json_object_hook)
