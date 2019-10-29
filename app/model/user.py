@@ -3,7 +3,7 @@
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
 from flask import g
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 from app.config import Config
 from app.model.enter import Enter
@@ -11,43 +11,35 @@ from app.model.enter import Enter
 from . import db, auth
 
 
-class AuthFailed(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
-
 class User(db.Model):
     __bind_key__ = 'enterprise_home'
 
     __tablename__ = 't_user'
 
-    userId = db.Column('id', primary_key=True)
-    userName = db.Column('userName')
+    userId = db.Column(db.Integer, name='id', primary_key=True, autoincrement=True)
+    orgId = db.Column('orgId')
+    userName = db.Column('userName', unique=True)
     realName = db.Column('realName')
     passWord = db.Column('plaintextPassword')
     globalLevel = db.Column('gobalLevel')
     userLevel = db.Column('user_level')
+    state = db.Column('status')
     districts = db.relationship('District')
+
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
     def __repr__(self):
         return '<User %r>' % self.userName
 
-    def generate_auth_token(self, expiration=3600):
+    def generate_auth_token(self, expiration=36000):
         """
-        生成token,默认有效时间一小时
+        生成token,默认有效时间10小时
         :param expiration: 有效时间
         :return: token
         """
         s = Serializer(Config.SECRET_KEY, expiration)
-        return s.dumps({
-            'userId': self.userId,
-            'userName': self.userName,
-            'realName': self.realName,
-            'passWord': self.passWord,
-            'globalLevel': self.globalLevel,
-            'userLevel': self.userLevel,
-            'districts': ','.join(self.get_district_code_list())
-        }).decode('utf-8')
+        return s.dumps({'id': self.userId}).decode('utf-8')
 
     @staticmethod
     @auth.verify_token
@@ -58,28 +50,27 @@ class User(db.Model):
         s = Serializer(Config.SECRET_KEY)
         try:
             data = s.loads(token.encode('utf-8'))
-        except SignatureExpired:
-            raise AuthFailed(msg='token过期')
-        except BadSignature:
-            raise AuthFailed(msg='token无效')
+        except:
+            return False
         if data:
-            g.user = data
+            g.user = User.query.get_or_404(data['id'])
             return True
         return False
 
-    def get_district_code_list(self):
-        return map(lambda d: d.districtCode, self.districts)
-
-    @staticmethod
-    def get_district_criterion(user):
-        if user['globalLevel'] == 'province':
-            if user['userLevel'] == '1':
-                return Enter.cityCode.in_(user['districts'].split(','))
-            if user['userLevel'] == '2':
-                return Enter.areaCode.in_(user['districts'].split(','))
-            if user['userLevel'] == '3':
-                return Enter.countyCode.in_(user['districts'].split(','))
-        if user['globalLevel'] == 'city' or 'county':
-            return Enter.areaCode.in_(user['districts'].split(','))
-        if user['globalLevel'] == 'industrialPark':
-            return Enter.countyCode.in_(user['districts'].split(','))
+    def get_district_criterion(self):
+        """
+        获取用户管辖区域企业的过滤条件
+        :return:
+        """
+        district_code_list = map(lambda d: d.districtCode, self.districts)
+        if self.globalLevel == 'province':
+            if self.userLevel == '1':
+                return Enter.cityCode.in_(district_code_list)
+            if self.userLevel == '2':
+                return Enter.areaCode.in_(district_code_list)
+            if self.userLevel == '3':
+                return Enter.countyCode.in_(district_code_list)
+        if self.globalLevel == 'city' or 'county':
+            return Enter.areaCode.in_(district_code_list)
+        if self.globalLevel == 'industrialPark':
+            return Enter.countyCode.in_(district_code_list)
