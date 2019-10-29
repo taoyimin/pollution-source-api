@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
-from flask import request, g
+from flask import g
 from flask_restful import reqparse, Resource, fields, marshal_with, abort
-from werkzeug.routing import ValidationError
 
 from app.api import api
 from app.model import db, auth
@@ -18,7 +17,6 @@ user_item_fields = {
     'globalLevel': fields.String,
     'userLevel': fields.String,
     'orgId': fields.String,
-    'state': fields.Integer,
     'districts': fields.String(attribute=lambda user: ','.join(map(lambda d: d.districtCode, user.districts)))
 }
 
