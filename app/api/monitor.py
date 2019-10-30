@@ -9,56 +9,56 @@ from app.api import api
 from app.model import auth
 from app.model.enter import Enter
 from app.model.monitor import Monitor
-from app.model.user import User
-from app.util.common import metric
+from app.util.common import metric, filter_none
 
-monitor_fields = {
+monitor_detail_fields = {
     'monitorId': fields.Integer,
     'monitorName': fields.String,
     'monitorAddress': fields.String,
+    # 'enter': fields.Nested(enter_detail_fields)
 }
 
-monitor_collection_fields = {
-    'total': fields.Integer,
-    'page': fields.Integer,
-    'per_page': fields.Integer,
-    'has_next': fields.Boolean,
-    'items': fields.List(fields.Nested(monitor_fields))
+monitor_item_fields = {
+    'monitorId': fields.Integer,
+    'monitorName': fields.String,
+    'monitorAddress': fields.String,
+    # 'enter': fields.Nested(enter_detail_fields)
+}
+
+monitor_list_fields = {
+    'total': fields.Integer(attribute=lambda pagination: pagination.total),
+    'currentPage': fields.Integer(attribute=lambda pagination: pagination.page),
+    'pageSize': fields.Integer(attribute=lambda pagination: pagination.per_page),
+    'hasNext': fields.Boolean(attribute=lambda pagination: pagination.has_next),
+    'list': fields.List(fields.Nested(monitor_item_fields), attribute=lambda pagination: pagination.items)
 }
 
 
 class MonitorResource(Resource):
 
     @metric
-    @marshal_with(monitor_fields)
+    @marshal_with(monitor_detail_fields)
     def get(self, monitor_id):
-        """
-        查询单个监控点的信息
-        :param monitor_id: 监控点id
-        :return: 监控点实体类
-        """
-        return Monitor.query.get_or_404(monitor_id)
+        return Monitor.query.get_or_404(monitor_id, description='id=%d的监控点不存在' % monitor_id)
 
 
 class MonitorCollectionResource(Resource):
-    decorators = [auth.login_required]
 
     @metric
-    @marshal_with(monitor_collection_fields)
+    @auth.login_required
+    @marshal_with(monitor_list_fields)
     def get(self, enter_id=None):
-        """
-        获取监控点集合信息
-        :return: 监控点集合
-        """
         parser = reqparse.RequestParser()
-        parser.add_argument('page', type=int, default=1)
-        parser.add_argument('per_page', type=int, default=20)
+        parser.add_argument('currentPage', type=int, default=1)
+        parser.add_argument('pageSize', type=int, default=20)
         args = parser.parse_args()
+        current_page = args.pop('currentPage')
+        page_size = args.pop('pageSize')
         if enter_id:
-            return Enter.query.get_or_404(enter_id).monitors.paginate(args['page'], args['per_page'], False)
+            query = Enter.query.get_or_404(enter_id, description='id=%d的企业不存在' % enter_id).monitors
         else:
-            return Monitor.query.join(Enter).filter(User.get_district_criterion(g.user)) \
-                .paginate(args['page'], args['per_page'], False)
+            query = Monitor.query.join(Enter).filter(g.user.get_district_criterion())
+        return query.filter_by(**filter_none(args)).paginate(current_page, page_size, False)
 
 
 api.add_resource(MonitorResource, '/monitors/<int:monitor_id>')
