@@ -10,7 +10,7 @@ from app.model import db, auth
 from app.model.user import User
 from app.util.common import metric, valid_user_name, valid_pass_word, valid_not_empty
 
-user_item_fields = {
+user_detail_fields = {
     'userId': fields.Integer,
     'userName': fields.String,
     'realName': fields.String,
@@ -18,6 +18,14 @@ user_item_fields = {
     'userLevel': fields.String,
     'orgId': fields.String,
     'districts': fields.String(attribute=lambda user: ','.join(map(lambda d: d.districtCode, user.districts)))
+}
+
+user_item_fields = {
+    'userId': fields.Integer,
+    'userName': fields.String,
+    'realName': fields.String,
+    'globalLevel': fields.String,
+    'userLevel': fields.String
 }
 
 user_list_fields = {
@@ -44,7 +52,7 @@ class UserResource(Resource):
     #     super(UserResource, self).__init__()
 
     @metric
-    @marshal_with(user_item_fields)
+    @marshal_with(user_detail_fields)
     def get(self, id=None, user_name=None):
         if id:
             user = User.query.get_or_404(id, description='id=%d的用户不存在' % id)
@@ -54,7 +62,7 @@ class UserResource(Resource):
 
     @metric
     @auth.login_required
-    @marshal_with(user_item_fields)
+    @marshal_with(user_detail_fields)
     def put(self, id):
         user = User.query.get_or_404(id, description='id=%d的用户不存在' % id)
         parser = reqparse.RequestParser()
@@ -77,6 +85,7 @@ class UserResource(Resource):
 
 
 class UserCollectionResource(Resource):
+    # decorators = [auth.login_required]
 
     @metric
     @marshal_with(user_list_fields)
@@ -88,7 +97,7 @@ class UserCollectionResource(Resource):
         return User.query.paginate(args['currentPage'], args['pageSize'], False)
 
     @metric
-    @marshal_with(user_item_fields)
+    @marshal_with(user_detail_fields)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userName', required=True, type=valid_user_name)
