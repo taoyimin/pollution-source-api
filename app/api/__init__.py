@@ -11,5 +11,7 @@ api = Api(api_blueprint)
 
 from . import enter
 from . import monitor
+from . import discharge
+from . import order
 from . import user
 from app.model.district import District
