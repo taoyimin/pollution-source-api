@@ -2,14 +2,13 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/10/22 16:05
-from flask import g
 from flask_restful import marshal_with, Resource, fields, reqparse
 from sqlalchemy import func
 
 from app.api import api
 from app.model import auth, db
 from app.model.enter import Enter
-from app.util.common import metric, filter_none
+from app.util.common import metric
 
 enter_detail_fields = {
     'enterId': fields.Integer,
@@ -45,9 +44,10 @@ enter_list_fields = {
 class EnterResource(Resource):
 
     @metric
+    @auth.login_required
     @marshal_with(enter_detail_fields)
     def get(self, enter_id):
-        return Enter.query.get_or_404(enter_id, description='id=%d的企业不存在' % enter_id)
+        return Enter.query.get_or_abort(enter_id)
 
 
 class EnterCollectionResource(Resource):
@@ -67,16 +67,14 @@ class EnterCollectionResource(Resource):
         parser.add_argument('countyCode', default=None)
         parser.add_argument('state', default=None)
         args = parser.parse_args()
-        state = args.pop('state')
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        query = Enter.query.order_by(Enter.enterId).filter_by(**filter_none(args))\
-            .filter(g.user.get_district_criterion())
-        if state == 'online':
-            # 把在线企业过滤出来
-            pass
-        return query.paginate(
-            current_page, page_size, False)
+        return Enter.query \
+            .order_by(Enter.enterId) \
+            .filter_by_user() \
+            .filter_by_state(args.pop('state')) \
+            .filter_by_args(args) \
+            .paginate(current_page, page_size, False)
 
 
 api.add_resource(EnterResource, '/enters/<int:enter_id>')
