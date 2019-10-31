@@ -7,14 +7,14 @@ from flask_restful import abort
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
 
 from app.config import Config
-from app.model.enter import Enter
 
 from . import db, auth
 
 
 class User(db.Model):
-    __bind_key__ = 'enterprise_home'
+    # __bind_key__ = 'enterprise_home'
 
+    __table_args__ = {'schema': 'enterprise_home.dbo'}
     __tablename__ = 't_user'
 
     userId = db.Column(db.Integer, name='id', primary_key=True, autoincrement=True)
@@ -24,7 +24,7 @@ class User(db.Model):
     passWord = db.Column('plaintextPassword')
     globalLevel = db.Column('gobalLevel')
     userLevel = db.Column('user_level')
-    state = db.Column('status')
+    isDelete = db.Column('status', default=0)
     districts = db.relationship('District')
 
     def __init__(self, **kwargs):
@@ -67,20 +67,20 @@ class User(db.Model):
             return True
         return False
 
-    def get_district_criterion(self):
-        """
-        获取用户管辖区域企业的过滤条件
-        :return:
-        """
-        district_code_list = map(lambda d: d.districtCode, self.districts)
-        if self.globalLevel == 'province':
-            if self.userLevel == '1':
-                return Enter.cityCode.in_(district_code_list)
-            if self.userLevel == '2':
-                return Enter.areaCode.in_(district_code_list)
-            if self.userLevel == '3':
-                return Enter.countyCode.in_(district_code_list)
-        if self.globalLevel == 'city' or 'county':
-            return Enter.areaCode.in_(district_code_list)
-        if self.globalLevel == 'industrialPark':
-            return Enter.countyCode.in_(district_code_list)
+    # def get_district_criterion(self):
+    #     """
+    #     获取用户管辖区域企业的过滤条件
+    #     :return:
+    #     """
+    #     district_code_list = map(lambda d: d.districtCode, self.districts)
+    #     if self.globalLevel == 'province':
+    #         if self.userLevel == '1':
+    #             return Enter.cityCode.in_(district_code_list)
+    #         if self.userLevel == '2':
+    #             return Enter.areaCode.in_(district_code_list)
+    #         if self.userLevel == '3':
+    #             return Enter.countyCode.in_(district_code_list)
+    #     if self.globalLevel == 'city' or 'county':
+    #         return Enter.areaCode.in_(district_code_list)
+    #     if self.globalLevel == 'industrialPark':
+    #         return Enter.countyCode.in_(district_code_list)

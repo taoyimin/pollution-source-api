@@ -15,10 +15,11 @@ def create_app():
         'SQLALCHEMY_DATABASE_URI'] = 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/data_center?charset=utf8'
     app.config['SQLALCHEMY_BINDS'] = {
         'enterprise_archives': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_archives?charset=utf8',
-        'enterprise_home': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_home?charset=utf8'
+        'enterprise_home': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_home?charset=utf8',
+        'pollution_report': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/pollution_report?charset=utf8'
     }
-    # app.config['SECRET_KEY'] = 'taoyimin'
-    # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'taoyimin'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.register_blueprint(api_blueprint)
     model.init_app(app)
     return app

@@ -7,28 +7,48 @@ import functools
 import time
 
 from sqlalchemy import inspect, event
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, load_only
 from werkzeug.routing import ValidationError
-
-from app.model.user import User
 
 
 @event.listens_for(Query, "before_compile", retval=True)
 def before_compile(query):
     """
-    查询前默认把数据库逻辑删除的数据过滤掉
+    查询前默认把数据库无用的数据过滤掉
     :param query:
     :return:
     """
+    from app.model.enter import Enter
+    from app.model.discharge import Discharge
+    from app.model.monitor import Monitor
+    from app.model.order import Order
+    from app.model.user import User
     for ent in query.column_descriptions:
         entity = ent['entity']
         if entity is None:
             continue
         insp = inspect(ent['entity'])
         mapper = getattr(insp, 'mapper', None)
-        if mapper and issubclass(mapper.class_, User):
-            query = query.enable_assertions(False).filter(
-                ent['entity'].state == 0)
+        if mapper and issubclass(mapper.class_, (User, Enter,)):
+            # 把isDelete=0的数据过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0)
+        elif mapper and issubclass(mapper.class_, (Discharge,)):
+            # 把isDelete=0和没有对应enterId的Discharge过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0) \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId))))
+        elif mapper and issubclass(mapper.class_, (Monitor,)):
+            # 把isDelete=0和没有对应enterId、dischargeId的Monitor过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0) \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId))))\
+                .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId))))
+        elif mapper and issubclass(mapper.class_, (Order,)):
+            # 把没有对应enterId和monitorId的Order过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
+                .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))
     return query
 
 
@@ -86,7 +106,6 @@ def filter_none(data):
         if not data[k]:
             del data[k]
     return data
-
 
 # def _json_object_hook(d):
 #     return namedtuple('X', d.keys())(*d.values())
