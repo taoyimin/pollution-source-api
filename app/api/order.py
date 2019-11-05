@@ -64,14 +64,16 @@ class OrderCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
+        parser.add_argument('enterId', default=None)
+        parser.add_argument('monitorId', default=None)
         parser.add_argument('state', type=str, default='')
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id:
-            query = Enter.query.get_or_abort(enter_id).orders
-        elif monitor_id:
-            query = Monitor.query.get_or_abort(monitor_id).orders
+        if enter_id or args['enterId']:
+            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).orders
+        elif monitor_id or args['monitorId']:
+            query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).orders
         else:
             query = Order.query.filter_by_user()
         return query.order_by(Order.orderId) \
