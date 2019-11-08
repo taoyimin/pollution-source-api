@@ -10,7 +10,7 @@ from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
-from app.model.report import Report
+from app.model.report import Report, FactorReport, DischargeReport
 from app.util.common import metric
 
 monitor_detail_fields = {
@@ -55,13 +55,17 @@ class MonitorResource(Resource):
 
     @metric
     @marshal_with(monitor_detail_fields)
-    def get(self, monitor_id=None, order_id=None, report_id=None):
+    def get(self, monitor_id=None, order_id=None, report_id=None, discharge_report_id=None, factor_report_id=None):
         if monitor_id:
             return Monitor.query.get_or_abort(monitor_id)
         elif order_id:
             return Order.query.get_or_abort(order_id).monitor
         elif order_id:
             return Report.query.get_or_abort(report_id).monitor
+        elif discharge_report_id:
+            return DischargeReport.query.get_or_abort(discharge_report_id).monitor
+        elif factor_report_id:
+            return FactorReport.query.get_or_abort(factor_report_id).monitor
 
 
 class MonitorCollectionResource(Resource):
@@ -94,6 +98,7 @@ class MonitorCollectionResource(Resource):
 
 
 api.add_resource(MonitorResource, '/monitors/<int:monitor_id>', '/orders/<int:order_id>/monitor',
-                 '/reports/<int:report_id>/monitor')
+                 '/reports/<int:report_id>/monitor', '/dischargeReports/<int:discharge_report_id>/monitor',
+                 '/factorReports/<int:factor_report_id>/monitor')
 api.add_resource(MonitorCollectionResource, '/monitors', '/enters/<int:enter_id>/monitors',
                  '/discharges/<int:discharge_id>/monitors')

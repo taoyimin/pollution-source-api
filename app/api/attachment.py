@@ -7,7 +7,8 @@ from flask_restful import marshal_with, Resource, fields, reqparse
 from app.api import api
 from app.model import auth
 from app.model.attachment import Attachment
-from app.model.report import DischargeReport
+from app.model.process import Process
+from app.model.report import DischargeReport, FactorReport
 from app.util.common import metric
 
 attachment_detail_fields = {
@@ -49,19 +50,33 @@ class AttachmentCollectionResource(Resource):
 
     @metric
     @marshal_with(attachment_list_fields)
-    def get(self, discharge_report_id=None):
+    def get(self, discharge_report_id=None, factor_report_id=None, process_id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
+        parser.add_argument('dischargeReportId', default=None)
+        parser.add_argument('factorReportId', default=None)
+        parser.add_argument('processId', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if discharge_report_id:
-            query = DischargeReport.query.get_or_abort(discharge_report_id).attachments
+        if discharge_report_id or args['dischargeReportId']:
+            query = DischargeReport.query.get_or_abort(
+                discharge_report_id if discharge_report_id else args.pop('dischargeReportId')).attachments
+        elif factor_report_id or args['factorReportId']:
+            query = FactorReport.query.get_or_abort(
+                factor_report_id if factor_report_id else args.pop('factorReportId')).attachments
+        elif process_id or args['processId']:
+            query = Process.query.get_or_abort(process_id if process_id else args.pop('processId')).attachments
         else:
             query = Attachment.query
-        return query.paginate(current_page, page_size, False)
+        if query:
+            return query.paginate(current_page, page_size, False)
+        else:
+            return query
 
 
 api.add_resource(AttachmentResource, '/attachments/<int:attachment_id>')
-api.add_resource(AttachmentCollectionResource, '/attachments', '/dischargeReports/<int:discharge_report_id>/attachments')
+api.add_resource(AttachmentCollectionResource, '/attachments',
+                 '/dischargeReports/<int:discharge_report_id>/attachments',
+                 '/factorReports/<int:factor_report_id>/attachments', '/processes/<int:process_id>/attachments')

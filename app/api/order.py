@@ -10,6 +10,7 @@ from app.model import auth
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
+from app.model.process import Process
 from app.util.common import metric
 
 order_detail_fields = {
@@ -53,8 +54,11 @@ class OrderResource(Resource):
 
     @metric
     @marshal_with(order_detail_fields)
-    def get(self, order_id):
-        return Order.query.get_or_abort(order_id)
+    def get(self, order_id=None, process_id=None):
+        if order_id:
+            return Order.query.get_or_abort(order_id)
+        elif process_id:
+            return Process.query.get_or_abort(process_id).order
 
 
 class OrderCollectionResource(Resource):
@@ -83,6 +87,6 @@ class OrderCollectionResource(Resource):
             .paginate(current_page, page_size, False)
 
 
-api.add_resource(OrderResource, '/orders/<int:order_id>')
+api.add_resource(OrderResource, '/orders/<int:order_id>', '/processes/<int:process_id>/order')
 api.add_resource(OrderCollectionResource, '/orders', '/enters/<int:enter_id>/orders',
                  '/monitors/<int:monitor_id>/orders')

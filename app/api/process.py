@@ -7,6 +7,7 @@ from flask_restful import marshal_with, Resource, fields, reqparse
 from app.api import api
 from app.api.attachment import attachment_detail_fields, attachment_item_fields
 from app.model import auth
+from app.model.order import Order
 from app.model.process import Process
 from app.util.common import metric
 
@@ -52,15 +53,21 @@ class ProcessCollectionResource(Resource):
 
     @metric
     @marshal_with(process_list_fields)
-    def get(self):
+    def get(self, order_id=None):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
+        parser.add_argument('orderId', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        return Process.query.paginate(current_page, page_size, False)
+        if order_id or args['orderId']:
+            query = Order.query.get_or_abort(order_id if order_id else args.pop('orderId')).processes
+        else:
+            query = Process.query
+        return query.filter_by_args(args) \
+            .paginate(current_page, page_size, False)
 
 
 api.add_resource(ProcessResource, '/processes/<int:process_id>')
-api.add_resource(ProcessCollectionResource, '/processes')
+api.add_resource(ProcessCollectionResource, '/processes', '/orders/<int:order_id>/processes')

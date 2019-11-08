@@ -10,7 +10,7 @@ from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
-from app.model.report import Report
+from app.model.report import Report, DischargeReport, FactorReport
 from app.util.common import metric
 
 enter_detail_fields = {
@@ -63,7 +63,8 @@ class EnterResource(Resource):
 
     @metric
     @marshal_with(enter_detail_fields)
-    def get(self, enter_id=None, discharge_id=None, monitor_id=None, order_id=None, report_id=None):
+    def get(self, enter_id=None, discharge_id=None, monitor_id=None, order_id=None, report_id=None,
+            discharge_report_id=None, factor_report_id=None):
         if enter_id:
             return Enter.query.get_or_abort(enter_id)
         elif discharge_id:
@@ -74,6 +75,10 @@ class EnterResource(Resource):
             return Order.query.get_or_abort(order_id).enter
         elif report_id:
             return Report.query.get_or_abort(report_id).enter
+        elif discharge_report_id:
+            return DischargeReport.query.get_or_abort(discharge_report_id).enter
+        elif factor_report_id:
+            return FactorReport.query.get_or_abort(factor_report_id).enter
 
 
 class EnterCollectionResource(Resource):
@@ -102,5 +107,6 @@ class EnterCollectionResource(Resource):
 
 
 api.add_resource(EnterResource, '/enters/<int:enter_id>', '/discharges/<int:discharge_id>/enter',
-                 '/monitors/<int:monitor_id>/enter', '/orders/<int:order_id>/enter', '/reports/<int:report_id>/enter')
+                 '/monitors/<int:monitor_id>/enter', '/orders/<int:order_id>/enter', '/reports/<int:report_id>/enter',
+                 '/dischargeReports/<int:discharge_report_id>/enter', '/factorReports/<int:factor_report_id>/enter')
 api.add_resource(EnterCollectionResource, '/enters')

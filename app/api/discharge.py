@@ -9,7 +9,7 @@ from app.model import auth
 from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
-from app.model.report import Report
+from app.model.report import Report, DischargeReport, FactorReport
 from app.util.common import metric
 
 discharge_detail_fields = {
@@ -56,13 +56,17 @@ class DischargeResource(Resource):
 
     @metric
     @marshal_with(discharge_detail_fields)
-    def get(self, discharge_id=None, monitor_id=None, report_id=None):
+    def get(self, discharge_id=None, monitor_id=None, report_id=None, discharge_report_id=None, factor_report_id=None):
         if discharge_id:
             return Discharge.query.get_or_abort(discharge_id)
         elif monitor_id:
             return Monitor.query.get_or_abort(monitor_id).discharge
         elif report_id:
             return Report.query.get_or_abort(report_id).discharge
+        elif discharge_report_id:
+            return DischargeReport.query.get_or_abort(discharge_report_id).discharge
+        elif factor_report_id:
+            return FactorReport.query.get_or_abort(factor_report_id).discharge
 
 
 class DischargeCollectionResource(Resource):
@@ -87,5 +91,6 @@ class DischargeCollectionResource(Resource):
 
 
 api.add_resource(DischargeResource, '/discharges/<int:discharge_id>', '/monitors/<int:monitor_id>/discharge',
-                 '/reports/<int:report_id>/discharge')
+                 '/reports/<int:report_id>/discharge', '/dischargeReports/<int:discharge_report_id>/discharge',
+                 '/factorReports/<int:factor_report_id>/discharge')
 api.add_resource(DischargeCollectionResource, '/discharges', '/enters/<int:enter_id>/discharges')
