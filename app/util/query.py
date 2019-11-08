@@ -17,7 +17,7 @@ class CommonQuery(BaseQuery):
 
     def filter_by_args(self, args):
         """
-        根据传入的字典过滤数据，忽略value为空的参数
+        根据字典过滤数据，忽略value为空的参数
         :param args:
         :return:
         """
@@ -42,8 +42,7 @@ class EnterQuery(CommonQuery):
 
     def filter_by_user(self):
         """
-        根据传入的用户筛选出在管辖区域的企业
-        :param user:
+        根据用户筛选出在管辖区域的企业
         :return:
         """
         from app.model.enter import Enter
@@ -65,15 +64,17 @@ class EnterQuery(CommonQuery):
 
     def filter_by_state(self, state):
         """
-        根据传入的状态筛选企业
-        :param state:
+        根据状态筛选企业
+        :param state: 0：全部 1：在线
         :return:
         """
-        if state == 'online':
+        if state == '0' or state == '':
+            return self
+        elif state == '1':
             # TODO 把在线企业过滤出来
             return self
         else:
-            return self
+            abort(400, message='参数state=%s不合法' % state)
 
 
 class DischargeQuery(CommonQuery):
@@ -94,21 +95,12 @@ class DischargeQuery(CommonQuery):
 
     def filter_by_user(self):
         """
-        根据传入的用户筛选排口
+        根据用户筛选排口
         :return:
         """
         from app.model.enter import Enter
         from app.model.discharge import Discharge
         return self.filter(Discharge.enterId.in_(Enter.query.filter_by_user().options(load_only(Enter.enterId))))
-
-    def filter_by_state(self, state):
-        """
-        根据传入的状态筛选排口
-        :param state:
-        :return:
-        """
-        # TODO 根据状态筛选排口
-        return self
 
 
 class MonitorQuery(CommonQuery):
@@ -129,7 +121,7 @@ class MonitorQuery(CommonQuery):
 
     def filter_by_user(self):
         """
-        根据传入的用户筛选监控点
+        根据用户筛选监控点
         :return:
         """
         from app.model.enter import Enter
@@ -138,12 +130,25 @@ class MonitorQuery(CommonQuery):
 
     def filter_by_state(self, state):
         """
-        根据传入的状态筛选监控点
-        :param state:
+        根据状态筛选监控点
+        :param state: 0：全部 1：在线 2：预警 3：超标 4：脱机 5：停产
         :return:
         """
         # TODO 根据状态筛选监控点
-        return self
+        if state == '0' or state == '':
+            return self
+        if state == '1':
+            return self
+        if state == '2':
+            return self
+        if state == '3':
+            return self
+        if state == '4':
+            return self
+        if state == '5':
+            return self
+        else:
+            abort(400, message='参数state=%s不合法' % state)
 
 
 class OrderQuery(CommonQuery):
@@ -164,7 +169,7 @@ class OrderQuery(CommonQuery):
 
     def filter_by_user(self):
         """
-        根据传入的用户筛选报警管理单
+        根据用户筛选报警管理单
         :return:
         """
         from app.model.enter import Enter
@@ -173,12 +178,92 @@ class OrderQuery(CommonQuery):
 
     def filter_by_state(self, state):
         """
-        根据传入的状态筛选报警管理单
-        :param state:
+        根据状态筛选报警管理单
+        :param state: 0：全部 1：待督办 2：待处理 3：待审核 4：审核不通过 5：已办结
         :return:
         """
         # TODO 根据状态筛选报警管理单
-        return self
+        if state == '0' or state == '':
+            return self
+        elif state == '1':
+            return self.filter_by(orderState='10')
+        elif state == '2':
+            return self.filter_by(orderState='20')
+        elif state == '3':
+            return self.filter_by(orderState='30')
+        elif state == '4':
+            return self.filter_by(orderState='40')
+        elif state == '5':
+            return self.filter_by(orderState='50')
+        else:
+            abort(400, message='参数state=%s不合法' % state)
 
-    def filter_by_parent(self):
-        pass
+
+class ReportQuery(CommonQuery):
+    """
+    异常申报单查询类
+    """
+
+    def get_or_abort(self, ident):
+        """
+        根据id查询异常申报单
+        :param ident:
+        :return:
+        """
+        from app.model.enter import Enter
+        report = self.get_or_404(ident, description='id=%s的异常申报单不存在' % ident)
+        return report if Enter.query.filter_by_user().filter_by(enterId=report.enterId).one_or_none() \
+            else abort(400, message='您没有权限访问id=%s的异常申报单' % ident)
+
+    def filter_by_user(self):
+        """
+        根据用户筛选异常申报单
+        :return:
+        """
+        from app.model.enter import Enter
+        from app.model.report import Report
+        return self.filter(Report.enterId.in_(Enter.query.filter_by_user().options(load_only(Enter.enterId))))
+
+    # def filter_by_state(self, state):
+    #     """
+    #     根据状态筛选异常申报单
+    #     :param state: 0：待审核 1：审核通过 2：审核不通过
+    #     :return:
+    #     """
+    #     if state == '':
+    #         return self
+    #     elif state == '0':
+    #         return self.filter_by(isReview='0')
+    #     elif state == '1':
+    #         return self.filter_by(isReview='1')
+    #     elif state == '2':
+    #         return self.filter_by(isReview='2')
+    #     else:
+    #         abort(400, message='参数state=%s不合法' % state)
+
+
+class AttachmentQuery(CommonQuery):
+    """
+    附件查询类
+    """
+
+    def get_or_abort(self, ident):
+        return self.get_or_404(ident, description='id=%s的附件不存在' % ident)
+
+
+class ProcessQuery(CommonQuery):
+    """
+    报警管理单流程查询类
+    """
+
+    def get_or_abort(self, ident):
+        return self.get_or_404(ident, description='id=%s的处理流程不存在' % ident)
+
+
+class DictionaryQuery(CommonQuery):
+    """
+    数据字典查询类
+    """
+
+    def get_or_abort(self, ident):
+        return self.get_or_404(ident, description='id=%s的数据字典不存在' % ident)

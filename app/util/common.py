@@ -22,6 +22,10 @@ def before_compile(query):
     from app.model.discharge import Discharge
     from app.model.monitor import Monitor
     from app.model.order import Order
+    from app.model.report import DischargeReport
+    from app.model.report import FactorReport
+    from app.model.attachment import Attachment
+    from app.model.dictionary import Dictionary
     from app.model.user import User
     for ent in query.column_descriptions:
         entity = ent['entity']
@@ -29,25 +33,40 @@ def before_compile(query):
             continue
         insp = inspect(ent['entity'])
         mapper = getattr(insp, 'mapper', None)
-        if mapper and issubclass(mapper.class_, (User, Enter,)):
-            # 把isDelete=0的数据过滤掉
+        if mapper and issubclass(mapper.class_, (User, Enter, Attachment, Dictionary)):
+            # 把isDelete=0的数据保留
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].isDelete == 0)
         elif mapper and issubclass(mapper.class_, (Discharge,)):
-            # 把isDelete=0和没有对应enterId的Discharge过滤掉
+            # 把isDelete=0的保留，没有对应enterId的Discharge过滤掉
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].isDelete == 0) \
                 .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId))))
         elif mapper and issubclass(mapper.class_, (Monitor,)):
-            # 把isDelete=0和没有对应enterId、dischargeId的Monitor过滤掉
+            # 把isDelete=0的保留，没有对应enterId、dischargeId的Monitor过滤掉
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].isDelete == 0) \
-                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId))))\
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
                 .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId))))
         elif mapper and issubclass(mapper.class_, (Order,)):
             # 把没有对应enterId和monitorId的Order过滤掉
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
+                .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))
+        elif mapper and issubclass(mapper.class_, (DischargeReport,)):
+            # 把isDelete=0，dataType=S，dischargeMonitorType=1的保留，没有对应enterId,dischargeId,monitorId的Report过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0, ent['entity'].dataType == 'S') \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
+                .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId)))) \
+                .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))\
+                .join(Discharge).filter_by(dischargeMonitorType='1')
+        elif mapper and issubclass(mapper.class_, (FactorReport,)):
+            # 把isDelete=0，dataType=A的保留，没有对应enterId,dischargeId,monitorId的Report过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0, ent['entity'].dataType == 'A') \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
+                .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId)))) \
                 .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))
     return query
 
