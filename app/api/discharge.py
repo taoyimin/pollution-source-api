@@ -15,22 +15,30 @@ from app.util.common import metric
 discharge_detail_fields = {
     'dischargeId': fields.String,
     'enterId': fields.String,
+    'enterName': fields.String,
+    'enterAddress': fields.String,
     'dischargeName': fields.String,
     'dischargeShortName': fields.String,
     'dischargeAddress': fields.String,
     'dischargeNumber': fields.String,
     'dischargeTypeStr': fields.String,
+    'outTypeStr': fields.String,
     'denoterInstallTypeStr': fields.String,
     'dischargeRuleStr': fields.String,
-    'outletTypeStr': fields.String,
+    'dischargeCategoryStr': fields.String,
     'longitude': fields.String,
-    'latitude': fields.String
+    'latitude': fields.String,
+    'dischargeReportTotalCount': fields.String,
+    'factorReportTotalCount': fields.String,
 }
 
 discharge_item_fields = {
     'dischargeId': fields.String,
+    'enterName': fields.String,
     'dischargeName': fields.String,
-    'dischargeShortName': fields.String,
+    'dischargeCategoryStr': fields.String,
+    'dischargeTypeStr': fields.String,
+    'dischargeRuleStr': fields.String,
     'dischargeAddress': fields.String
 }
 
@@ -74,8 +82,7 @@ class DischargeCollectionResource(Resource):
             query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).discharges
         else:
             query = Discharge.query.filter_by_user()
-        return query.order_by(Discharge.dischargeId) \
-            .filter_by_args(args) \
+        return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
 

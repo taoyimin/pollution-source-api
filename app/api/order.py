@@ -5,6 +5,7 @@
 from flask_restful import marshal_with, Resource, fields, reqparse
 
 from app.api import api
+from app.api.process import process_item_fields
 from app.model import auth
 from app.model.enter import Enter
 from app.model.monitor import Monitor
@@ -24,6 +25,7 @@ order_detail_fields = {
     'orderStateStr': fields.String,
     'alarmTypeStr': fields.String,
     'alarmRemark': fields.String,
+    'processes': fields.List(fields.Nested(process_item_fields))
 }
 
 order_item_fields = {
@@ -76,8 +78,7 @@ class OrderCollectionResource(Resource):
             query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).orders
         else:
             query = Order.query.filter_by_user()
-        return query.order_by(Order.orderId) \
-            .filter_by_state(args.pop('state')) \
+        return query.filter_by_state(args.pop('state')) \
             .filter_by_args(args) \
             .paginate(current_page, page_size, False)
 

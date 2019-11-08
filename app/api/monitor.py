@@ -22,21 +22,23 @@ monitor_detail_fields = {
     'monitorName': fields.String,
     'monitorAddress': fields.String,
     'monitorTypeStr': fields.String,
-    'outletTypeStr': fields.String,
+    'monitorCategoryStr': fields.String,
     'networkTypeStr': fields.String,
     'mnCode': fields.String,
     'orderCompleteCount': fields.String,
     'orderVerifyCount': fields.String,
     'orderTotalCount': fields.String,
+    'dischargeReportTotalCount': fields.String,
+    'factorReportTotalCount': fields.String,
 }
 
 monitor_item_fields = {
     'monitorId': fields.String,
-    'dischargeShortName': fields.String,
+    'enterName': fields.String,
     'monitorName': fields.String,
     'monitorAddress': fields.String,
     'monitorType': fields.String,
-    'outletTypeStr': fields.String,
+    'monitorCategoryStr': fields.String,
 }
 
 monitor_list_fields = {
@@ -86,8 +88,7 @@ class MonitorCollectionResource(Resource):
             query = Discharge.query.get_or_abort(discharge_id if discharge_id else args.pop('dischargeId')).monitors
         else:
             query = Monitor.query.filter_by_user()
-        return query.order_by(Monitor.monitorId) \
-            .filter_by_state(args.pop('state')) \
+        return query.filter_by_state(args.pop('state')) \
             .filter_by_args(args) \
             .paginate(current_page, page_size, False)
 

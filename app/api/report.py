@@ -5,6 +5,7 @@
 from flask_restful import marshal_with, Resource, fields, reqparse
 
 from app.api import api
+from app.api.attachment import attachment_item_fields
 from app.model import auth
 from app.model.discharge import Discharge
 from app.model.enter import Enter
@@ -25,6 +26,7 @@ report_detail_fields = {
     'endTimeStr': fields.String,
     'dataType': fields.String,
     'alarmType': fields.String,
+    'state': fields.String,
 }
 
 report_item_fields = {
@@ -55,21 +57,25 @@ discharge_report_detail_fields = {
     'enterAddress': fields.String,
     'dischargeName': fields.String,
     'monitorName': fields.String,
+    'districtName': fields.String,
     'startTimeStr': fields.String,
     'endTimeStr': fields.String,
+    'reportTimeStr': fields.String,
     'stopTypeStr': fields.String,
-    'stopReason': fields.String
+    'stopReason': fields.String,
+    'state': fields.String,
+    'attachments': fields.List(fields.Nested(attachment_item_fields))
 }
 
 discharge_report_item_fields = {
     'reportId': fields.String,
     'enterName': fields.String,
-    'dischargeName': fields.String,
     'monitorName': fields.String,
+    'districtName': fields.String,
     'startTimeStr': fields.String,
     'endTimeStr': fields.String,
+    'reportTimeStr': fields.String,
     'stopTypeStr': fields.String,
-    'stopReason': fields.String,
 }
 
 discharge_report_list_fields = {
@@ -89,21 +95,27 @@ factor_report_detail_fields = {
     'enterAddress': fields.String,
     'dischargeName': fields.String,
     'monitorName': fields.String,
+    'districtName': fields.String,
     'startTimeStr': fields.String,
     'endTimeStr': fields.String,
+    'reportTimeStr': fields.String,
     'alarmTypeStr': fields.String,
-    'exceptionReason': fields.String
+    'factorCodeStr': fields.String,
+    'exceptionReason': fields.String,
+    'state': fields.String,
+    'attachments': fields.List(fields.Nested(attachment_item_fields))
 }
 
 factor_report_item_fields = {
     'reportId': fields.String,
     'enterName': fields.String,
-    'dischargeName': fields.String,
     'monitorName': fields.String,
+    'districtName': fields.String,
     'startTimeStr': fields.String,
     'endTimeStr': fields.String,
+    'reportTimeStr': fields.String,
     'alarmTypeStr': fields.String,
-    'exceptionReason': fields.String,
+    'factorCodeStr': fields.String,
 }
 
 factor_report_list_fields = {
@@ -136,7 +148,7 @@ class ReportCollectionResource(Resource):
         parser.add_argument('enterId', type=str, default=None)
         parser.add_argument('dischargeId', default=None)
         parser.add_argument('monitorId', default=None)
-        parser.add_argument('state', type=str, default='')
+        parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
@@ -149,9 +161,7 @@ class ReportCollectionResource(Resource):
             query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).reports
         else:
             query = Report.query.filter_by_user()
-        return query.order_by(Report.reportId) \
-            .filter_by_state(args.pop('state')) \
-            .filter_by_args(args) \
+        return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
 
@@ -176,7 +186,7 @@ class DischargeReportCollectionResource(Resource):
         parser.add_argument('enterId', type=str, default=None)
         parser.add_argument('dischargeId', default=None)
         parser.add_argument('monitorId', default=None)
-        parser.add_argument('state', type=str, default='')
+        parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
@@ -189,9 +199,7 @@ class DischargeReportCollectionResource(Resource):
             query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).dischargeReports
         else:
             query = DischargeReport.query.filter_by_user()
-        return query.order_by(Report.reportId) \
-            .filter_by_state(args.pop('state')) \
-            .filter_by_args(args) \
+        return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
 
@@ -216,7 +224,7 @@ class FactorReportCollectionResource(Resource):
         parser.add_argument('enterId', type=str, default=None)
         parser.add_argument('dischargeId', default=None)
         parser.add_argument('monitorId', default=None)
-        parser.add_argument('state', type=str, default='')
+        parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
@@ -229,9 +237,7 @@ class FactorReportCollectionResource(Resource):
             query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).factorReports
         else:
             query = FactorReport.query.filter_by_user()
-        return query.order_by(Report.reportId) \
-            .filter_by_state(args.pop('state')) \
-            .filter_by_args(args) \
+        return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
 

@@ -65,8 +65,7 @@ class EnterResource(Resource):
     @marshal_with(enter_detail_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None, order_id=None, report_id=None):
         if enter_id:
-            enter = Enter.query.get_or_abort(enter_id)
-            return enter
+            return Enter.query.get_or_abort(enter_id)
         elif discharge_id:
             return Discharge.query.get_or_abort(discharge_id).enter
         elif monitor_id:
@@ -96,8 +95,7 @@ class EnterCollectionResource(Resource):
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        return Enter.query.order_by(Enter.enterId) \
-            .filter_by_user() \
+        return Enter.query.filter_by_user() \
             .filter_by_state(args.pop('state')) \
             .filter_by_args(args) \
             .paginate(current_page, page_size, False)
