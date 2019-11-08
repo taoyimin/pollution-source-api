@@ -27,6 +27,10 @@ class User(db.Model):
     isDelete = db.Column('status', default=0)
     districts = db.relationship('District')
 
+    __mapper_args__ = {
+        "order_by": userId
+    }
+
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
