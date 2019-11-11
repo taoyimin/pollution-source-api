@@ -104,7 +104,7 @@ class LongStopReport(Report):
 
     @property
     def reportTimeStr(self):
-        return self.reportTime.strftime('%Y-%m-%d')
+        return self.reportTime.strftime('%Y-%m-%d %H:%M')
 
 
 class DischargeReport(Report):

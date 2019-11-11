@@ -29,6 +29,7 @@ enter_detail_fields = {
     'creditCode': fields.String,
     'orderCompleteCount': fields.String,
     'orderTotalCount': fields.String,
+    'longStopReportTotalCount': fields.String,
     'dischargeReportTotalCount': fields.String,
     'factorReportTotalCount': fields.String,
     'monitorTotalCount': fields.String,

@@ -113,6 +113,10 @@ class Enter(db.Model):
         return self.orders.count()
 
     @property
+    def longStopReportTotalCount(self):
+        return self.longStopReports.count()
+
+    @property
     def dischargeReportTotalCount(self):
         return self.dischargeReports.count()
 
