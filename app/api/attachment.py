@@ -70,10 +70,7 @@ class AttachmentCollectionResource(Resource):
             query = Process.query.get_or_abort(process_id if process_id else args.pop('processId')).attachments
         else:
             query = Attachment.query
-        if query:
-            return query.paginate(current_page, page_size, False)
-        else:
-            return query
+        return query.paginate(current_page, page_size, False)
 
 
 api.add_resource(AttachmentResource, '/attachments/<int:attachment_id>')

@@ -48,4 +48,4 @@ class Process(db.Model):
         if self.attachmentIds:
             return Attachment.query.filter(Attachment.attachmentId.in_(self.attachmentIds.split(',')))
         else:
-            return []
+            return Attachment.query.filter_by(attachmentId=None)
