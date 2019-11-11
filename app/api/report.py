@@ -10,7 +10,7 @@ from app.model import auth
 from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
-from app.model.report import Report, DischargeReport, FactorReport
+from app.model.report import Report, DischargeReport, FactorReport, LongStopReport
 from app.util.common import metric
 
 report_detail_fields = {
@@ -46,6 +46,35 @@ report_list_fields = {
     'pageSize': fields.Integer(attribute=lambda p: p.per_page),
     'hasNext': fields.Boolean(attribute=lambda p: p.has_next),
     'list': fields.List(fields.Nested(report_item_fields), attribute=lambda p: p.items)
+}
+
+long_stop_report_detail_fields = {
+    'reportId': fields.String,
+    'enterId': fields.String,
+    'enterName': fields.String,
+    'enterAddress': fields.String,
+    'districtName': fields.String,
+    'startTimeStr': fields.String,
+    'endTimeStr': fields.String,
+    'reportTimeStr': fields.String,
+    'remark': fields.String
+}
+
+long_stop_report_item_fields = {
+    'reportId': fields.String,
+    'enterName': fields.String,
+    'districtName': fields.String,
+    'startTimeStr': fields.String,
+    'endTimeStr': fields.String,
+    'reportTimeStr': fields.String
+}
+
+long_stop_report_list_fields = {
+    'total': fields.Integer(attribute=lambda p: p.total),
+    'currentPage': fields.Integer(attribute=lambda p: p.page),
+    'pageSize': fields.Integer(attribute=lambda p: p.per_page),
+    'hasNext': fields.Boolean(attribute=lambda p: p.has_next),
+    'list': fields.List(fields.Nested(long_stop_report_item_fields), attribute=lambda p: p.items)
 }
 
 discharge_report_detail_fields = {
@@ -165,6 +194,36 @@ class ReportCollectionResource(Resource):
             .paginate(current_page, page_size, False)
 
 
+class LongStopReportResource(Resource):
+    decorators = [auth.login_required]
+
+    @metric
+    @marshal_with(long_stop_report_detail_fields)
+    def get(self, report_id):
+        return LongStopReport.query.get_or_abort(report_id)
+
+
+class LongStopReportCollectionResource(Resource):
+    decorators = [auth.login_required]
+
+    @metric
+    @marshal_with(long_stop_report_list_fields)
+    def get(self, enter_id=None):
+        parser = reqparse.RequestParser()
+        parser.add_argument('currentPage', type=int, default=1)
+        parser.add_argument('pageSize', type=int, default=20)
+        parser.add_argument('enterId', type=str, default=None)
+        args = parser.parse_args()
+        current_page = args.pop('currentPage')
+        page_size = args.pop('pageSize')
+        if enter_id or args['enterId']:
+            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).longStopReports
+        else:
+            query = LongStopReport.query.filter_by_user()
+        return query.filter_by_args(args) \
+            .paginate(current_page, page_size, False)
+
+
 class DischargeReportResource(Resource):
     decorators = [auth.login_required]
 
@@ -244,6 +303,8 @@ class FactorReportCollectionResource(Resource):
 api.add_resource(ReportResource, '/reports/<int:report_id>')
 api.add_resource(ReportCollectionResource, '/reports', '/enters/<int:enter_id>/reports',
                  '/discharges/<int:discharge_id>/reports', '/monitors/<int:monitor_id>/reports')
+api.add_resource(LongStopReportResource, '/longStopReports/<int:report_id>')
+api.add_resource(LongStopReportCollectionResource, '/longStopReports', '/enters/<int:enter_id>/longStopReports')
 api.add_resource(DischargeReportResource, '/dischargeReports/<int:report_id>')
 api.add_resource(DischargeReportCollectionResource, '/dischargeReports', '/enters/<int:enter_id>/dischargeReports',
                  '/discharges/<int:discharge_id>/dischargeReports', '/monitors/<int:monitor_id>/dischargeReports')

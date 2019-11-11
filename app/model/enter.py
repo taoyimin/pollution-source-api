@@ -59,6 +59,8 @@ class Enter(db.Model):
     reports = db.relationship('Report', lazy='dynamic', back_populates="enter", query_class=ReportQuery)
     dischargeReports = db.relationship('DischargeReport', lazy='dynamic', back_populates="enter",
                                        query_class=ReportQuery)
+    longStopReports = db.relationship('LongStopReport', lazy='dynamic', back_populates="enter",
+                                      query_class=ReportQuery)
     factorReports = db.relationship('FactorReport', lazy='dynamic', back_populates="enter", query_class=ReportQuery)
 
     __mapper_args__ = {

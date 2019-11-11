@@ -54,6 +54,7 @@ class Report(db.Model):
     endTime = db.Column('end_time')
     dataType = db.Column('dataType')
     state = db.Column('is_review')
+    reportTime = db.Column('update_time')
     isDelete = db.Column('is_deleted', default=0)
     enterId = db.Column('enter_id', db.ForeignKey(Enter.enterId))
     dischargeId = db.Column('out_id', db.ForeignKey(Discharge.dischargeId))
@@ -63,7 +64,7 @@ class Report(db.Model):
     monitor = db.relationship('Monitor', back_populates="reports")
 
     __mapper_args__ = {
-        "order_by": reportId
+        "order_by": reportTime.desc()
     }
 
     def __repr__(self):
@@ -98,6 +99,14 @@ class Report(db.Model):
         return self.endTime.strftime('%Y-%m-%d %H:%M')
 
 
+class LongStopReport(Report):
+    remark = db.Column('remark')
+
+    @property
+    def reportTimeStr(self):
+        return self.reportTime.strftime('%Y-%m-%d')
+
+
 class DischargeReport(Report):
     stopReason = db.Column('stop_reason')
     reportTime = db.Column('applay_time')
@@ -121,12 +130,7 @@ class DischargeReport(Report):
 
 class FactorReport(Report):
     exceptionReason = db.Column('exception_reason')
-    reportTime = db.Column('update_time')
     factorCode = db.Column('factor_code')
-
-    __mapper_args__ = {
-        "order_by": reportTime.desc()
-    }
 
     @property
     def alarmTypeStr(self):

@@ -22,6 +22,7 @@ def before_compile(query):
     from app.model.discharge import Discharge
     from app.model.monitor import Monitor
     from app.model.order import Order
+    from app.model.report import LongStopReport
     from app.model.report import DischargeReport
     from app.model.report import FactorReport
     from app.model.attachment import Attachment
@@ -68,6 +69,11 @@ def before_compile(query):
                 .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
                 .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId)))) \
                 .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))
+        elif mapper and issubclass(mapper.class_, (LongStopReport,)):
+            # 把isDelete=0，dataType=L的保留，没有对应enterId的Report过滤掉
+            query = query.enable_assertions(False) \
+                .filter(ent['entity'].isDelete == 0, ent['entity'].dataType == 'L') \
+                .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId))))
     return query
 
 
