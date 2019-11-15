@@ -3,7 +3,7 @@
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
 
-from app import create_app
+from app import app
 
 if __name__ == '__main__':
-    create_app().run()
+    app.run()

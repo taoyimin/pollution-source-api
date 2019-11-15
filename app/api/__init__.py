@@ -17,4 +17,5 @@ from . import report
 from . import attachment
 from . import process
 from . import user
+from . import license
 from app.model.district import District

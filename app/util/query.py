@@ -267,3 +267,38 @@ class DictionaryQuery(CommonQuery):
 
     def get_or_abort(self, ident):
         return self.get_or_404(ident, description='id=%s的数据字典不存在' % ident)
+
+
+class LicenseQuery(CommonQuery):
+    """
+    排污许可证查询类
+    """
+
+    def get_or_abort(self, ident):
+        """
+        根据传入id查询排污许可证
+        :param ident:
+        :return:
+        """
+        from app.model.enter import Enter
+        license = self.get_or_404(ident, description='id=%s的排污许可证不存在' % ident)
+        return license if Enter.query.filter_by_user().filter_by(enterId=license.enterId).one_or_none() \
+            else abort(400, message='您没有权限访问id=%s的排污许可证' % ident)
+
+    def filter_by_user(self):
+        """
+        根据用户筛选排污许可证
+        :return:
+        """
+        from app.model.enter import Enter
+        from app.model.license import License
+        return self.filter(License.enterId.in_(Enter.query.filter_by_user().options(load_only(Enter.enterId))))
+
+
+class LicenseFactorQuery(CommonQuery):
+    """
+    排污许可污染物查询类
+    """
+
+    def get_or_abort(self, ident):
+        return self.get_or_404(ident, description='id=%s的排污许可污染物不存在' % ident)
