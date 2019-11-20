@@ -18,6 +18,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 }
 app.config['SECRET_KEY'] = 'taoyimin'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.update(RESTFUL_JSON=dict(ensure_ascii=False))
 app.register_blueprint(api_blueprint)
 model.init_app(app)
 

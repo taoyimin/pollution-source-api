@@ -74,32 +74,32 @@ class Enter(db.Model):
     @property
     def industryTypeStr(self):
         return db.session.query(
-            func.enterprise_archives.dbo.getAreaOrInstulyName(self.industryType, 'industry')).first()[0]
+            func.enterprise_archives.dbo.getAreaOrInstulyName(self.industryType, 'industry')).scalar()
 
     @property
     def enterTypeStr(self):
-        return db.session.query(func.enterprise_archives.dbo.f_GetEnterType(self.enterType)).first()[0].strip()
+        return db.session.query(func.enterprise_archives.dbo.f_GetEnterType(self.enterType)).scalar().strip()
 
     @property
     def attentionLevelStr(self):
         return db.session.query(
-            func.enterprise_archives.dbo.getDicName(self.attentionLevel, 2, 'AttentionLevel')).first()[0]
+            func.enterprise_archives.dbo.getDicName(self.attentionLevel, 2, 'AttentionLevel')).scalar()
 
     @property
     def cityName(self):
-        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.cityCode, '1')).first()[0]
+        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.cityCode, '1')).scalar()
 
     @property
     def areaName(self):
-        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.areaCode, '2')).first()[0]
+        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.areaCode, '2')).scalar()
 
     @property
     def countyName(self):
-        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.countyCode, '3')).first()[0]
+        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.countyCode, '3')).scalar()
 
     @property
     def villageName(self):
-        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.villageCode, '4')).first()[0]
+        return db.session.query(func.enterprise_archives.dbo.getAreaName(self.villageCode, '4')).scalar()
 
     @property
     def districtName(self):
