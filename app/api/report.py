@@ -2,16 +2,20 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/10/22 19:23
+
+import werkzeug
 from flask_restful import marshal_with, Resource, fields, reqparse
 
-from app.api import api
+import app
+from app.api import api, upload_return_fields
 from app.api.attachment import attachment_item_fields
-from app.model import auth
+from app.model import auth, db
+from app.model.attachment import Attachment
 from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.report import Report, DischargeReport, FactorReport, LongStopReport
-from app.util.common import metric
+from app.util.common import metric, valid_not_empty, save_file
 
 report_detail_fields = {
     'reportId': fields.String,
@@ -223,6 +227,20 @@ class LongStopReportCollectionResource(Resource):
         return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
+    @marshal_with(upload_return_fields)
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('startTime', required=True, type=valid_not_empty)
+        parser.add_argument('endTime', required=True, type=valid_not_empty)
+        parser.add_argument('remark', required=True, type=valid_not_empty)
+        parser.add_argument('enterId', required=True, type=valid_not_empty)
+        args = parser.parse_args()
+        args['dataType'] = 'L'
+        report = LongStopReport(**args)
+        db.session.add(report)
+        db.session.commit()
+        return {'success': True, 'message': '提交成功'}
+
 
 class DischargeReportResource(Resource):
     decorators = [auth.login_required]
@@ -261,6 +279,35 @@ class DischargeReportCollectionResource(Resource):
         return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
 
+    @marshal_with(upload_return_fields)
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('alarmType', required=True, type=valid_not_empty)
+        parser.add_argument('startTime', required=True, type=valid_not_empty)
+        parser.add_argument('endTime', required=True, type=valid_not_empty)
+        parser.add_argument('stopReason', required=True, type=valid_not_empty)
+        parser.add_argument('enterId', required=True, type=valid_not_empty)
+        parser.add_argument('dischargeId', required=True, type=valid_not_empty)
+        parser.add_argument('monitorId', required=True, type=valid_not_empty)
+        parser.add_argument('file', type=werkzeug.FileStorage, location='files', required=False, action='append')
+        args = parser.parse_args()
+        args['dataType'] = 'S'
+        files = args.pop('file')
+        report = DischargeReport(**args)
+        db.session.add(report)
+        db.session.flush()
+        if files:
+            for file in files:
+                args = save_file(file)
+                args['fileModelId'] = report.reportId
+                args['fileModel'] = app.app.config['DISCHARGE_REPORT_FILE_MODEL']
+                args['fileType'] = app.app.config['DISCHARGE_REPORT_FILE_TYPE']
+                attachment = Attachment(**args)
+                db.session.add(attachment)
+                db.session.flush()
+        db.session.commit()
+        return {'success': True, 'message': '提交成功'}
+
 
 class FactorReportResource(Resource):
     decorators = [auth.login_required]
@@ -298,6 +345,36 @@ class FactorReportCollectionResource(Resource):
             query = FactorReport.query.filter_by_user()
         return query.filter_by_args(args) \
             .paginate(current_page, page_size, False)
+
+    @marshal_with(upload_return_fields)
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('alarmType', required=True, type=valid_not_empty)
+        parser.add_argument('factorCode', required=True, type=valid_not_empty)
+        parser.add_argument('startTime', required=True, type=valid_not_empty)
+        parser.add_argument('endTime', required=True, type=valid_not_empty)
+        parser.add_argument('exceptionReason', required=True, type=valid_not_empty)
+        parser.add_argument('enterId', required=True, type=valid_not_empty)
+        parser.add_argument('dischargeId', required=True, type=valid_not_empty)
+        parser.add_argument('monitorId', required=True, type=valid_not_empty)
+        parser.add_argument('file', type=werkzeug.FileStorage, location='files', required=False, action='append')
+        args = parser.parse_args()
+        args['dataType'] = 'A'
+        files = args.pop('file')
+        report = FactorReport(**args)
+        db.session.add(report)
+        db.session.flush()
+        if files:
+            for file in files:
+                args = save_file(file)
+                args['fileModelId'] = report.reportId
+                args['fileModel'] = app.app.config['FACTOR_REPORT_FILE_MODEL']
+                args['fileType'] = app.app.config['FACTOR_REPORT_FILE_TYPE']
+                attachment = Attachment(**args)
+                db.session.add(attachment)
+                db.session.flush()
+        db.session.commit()
+        return {'success': True, 'message': '提交成功'}
 
 
 api.add_resource(ReportResource, '/reports/<int:report_id>')
