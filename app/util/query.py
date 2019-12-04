@@ -71,7 +71,6 @@ class EnterQuery(CommonQuery):
         if state == '0' or state == '':
             return self
         elif state == '1':
-            # TODO 把在线企业过滤出来
             return self
         else:
             abort(400, message='参数state=%s不合法' % state)

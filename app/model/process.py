@@ -45,6 +45,9 @@ class Process(db.Model):
 
     @property
     def attachments(self):
+        # 处理流程的附件有两种查询方式
+        # 第一种：直接根据attachmentIds字段查询
+        # 第二种：根据file model id和file type查询（目前不能用这种方式查询，因为附件表file model id关联的是督办单id，对应不到流程id）
         if self.attachmentIds:
             return Attachment.query.filter(Attachment.attachmentId.in_(self.attachmentIds.split(',')))
         else:

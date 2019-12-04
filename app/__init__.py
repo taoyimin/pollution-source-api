@@ -8,8 +8,6 @@ from flask import Flask
 from app import model
 from app.api import api_blueprint
 
-ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
-
 app = Flask(__name__)
 # 配置数据库连接
 app.config[

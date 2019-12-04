@@ -4,10 +4,15 @@
 # Time  :2019/10/22 15:44
 
 from flask import Blueprint
-from flask_restful import Api
+from flask_restful import Api, fields
 
 api_blueprint = Blueprint("api", __name__, url_prefix='/api')
 api = Api(api_blueprint)
+
+upload_return_fields = {
+    'success': fields.Boolean,
+    'message': fields.String,
+}
 
 from . import enter
 from . import monitor

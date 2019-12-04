@@ -79,6 +79,7 @@ class DischargeCollectionResource(Resource):
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
         parser.add_argument('enterId', default=None)
+        parser.add_argument('dischargeType', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')

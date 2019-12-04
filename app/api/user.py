@@ -142,18 +142,21 @@ class IndexResource(Resource):
             'message': 'success',
             'data':
                 {
-                    "34": "1, 6, 80, 96, 88.89",
-                    "90": "1,1,1",
-                    "80": "1, 1,1,1",
-                    "70": "1,5,1,1,1,1,1",
-                    "60": "1, 1643, 2474,441",
-                    "50": "1,20,18,19",
-                    "40": "1,3370,198,257,120,100,37,124,170,107",
-                    "30": "1, 16, 93.75, 92.75, 100",
-                    "20": "1,41, 28, 30",
-                    "31": "1, 10, 100, 100, 88.89",
-                    "10": "1,南昌市,2019年08月10日 09时,67,良,PM2.5 SO2,80,72,12,22,20,0.32",
-                    "21": "1, 91.4, 96.19, 202"
+                    "34": "1, 6*, 80*, 96*, 88.89*",
+                    "80": "1,42*,15*,8*",
+                    "60": "1, %s,%s,%s" %
+                          (g.user.dealOrderCount, g.user.dealDischargeReportCount, g.user.dealFactorReportCount),
+                    "70": "1,1452*,785*,452*,15*,23*,1*",
+                    "50": "1,%s,0*,%s" % (g.user.rainEnterCount, g.user.rainDischargeCount),
+                    "40": "1,%s,%s,257*,%s,%s,%s,%s,%s,0*" %
+                          (g.user.totalEnterCount, g.user.importantEnterCount, g.user.waterEnterCount,
+                           g.user.airEnterCount, g.user.waterAirEnterCount, g.user.waterDischargeCount,
+                           g.user.airDischargeCount),
+                    "30": "1, 16*, 93.75*, 92.75*, 100*",
+                    "20": "1,41*, 28*, 30*",
+                    "31": "1, 10*, 100*, 100*, 88.89*",
+                    "10": "1,南昌市*,2019年08月10日 09时*,67*,良*,PM2.5 SO2*,80*,72*,12*,22*,20*,0.32*",
+                    "21": "1, 91.4*, 96.19*, 202*"
                 }
         }
 
