@@ -2,13 +2,17 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
-
+import datetime
 import functools
+import os
 import time
+import uuid
 
 from sqlalchemy import inspect, event
 from sqlalchemy.orm import Query, load_only
 from werkzeug.routing import ValidationError
+
+import app
 
 
 @event.listens_for(Query, "before_compile", retval=True)
@@ -62,7 +66,7 @@ def before_compile(query):
                 .filter(ent['entity'].isDelete == 0, ent['entity'].dataType == 'S') \
                 .filter(ent['entity'].enterId.in_(Enter.query.options(load_only(Enter.enterId)))) \
                 .filter(ent['entity'].dischargeId.in_(Discharge.query.options(load_only(Discharge.dischargeId)))) \
-                .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId))))\
+                .filter(ent['entity'].monitorId.in_(Monitor.query.options(load_only(Monitor.monitorId)))) \
                 .join(Discharge).filter_by(dischargeMonitorType='1')
         elif mapper and issubclass(mapper.class_, (FactorReport,)):
             # 把isDelete=0，dataType=A的保留，没有对应enterId,dischargeId,monitorId的Report过滤掉
@@ -133,6 +137,30 @@ def filter_none(data):
         if not data[k]:
             del data[k]
     return data
+
+
+def save_file(file):
+    """
+    保存文件并返回生成attachment实例的args
+    :param file:
+    :return:
+    """
+    # url前缀，保存到数据库需要使用
+    url_prefix = app.app.config['UPLOAD_SUB_DIRECTORY'] + '/' + app.app.config[
+        'DISCHARGE_REPORT_FILE_TYPE'] + '/' + str(datetime.datetime.now().year) + str(
+        datetime.datetime.now().month)
+    # 存在本地的真实文件名
+    local_filename = str(uuid.uuid4()) + os.path.splitext(file.filename)[1]
+    # 文件存放目录
+    save_directory = os.path.join(app.app.config['UPLOAD_ROOT_DIRECTORY'], url_prefix)
+    if not os.path.exists(save_directory):
+        # 如果文件夹不存在则创建
+        os.makedirs(save_directory)
+    # 文件的完整路径
+    full_path = os.path.join(save_directory, local_filename)
+    file.save(full_path)
+    return {'fileName': file.filename, 'url': url_prefix + '/' + local_filename,
+            'size': os.stat(full_path).st_size}
 
 # def _json_object_hook(d):
 #     return namedtuple('X', d.keys())(*d.values())
