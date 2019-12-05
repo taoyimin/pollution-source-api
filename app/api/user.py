@@ -7,7 +7,7 @@ from flask_restful import reqparse, Resource, fields, marshal_with, abort
 
 from app.api import api
 from app.model import db, auth
-from app.model.user import User
+from app.model.user import AdminUser, EnterUser
 from app.util.common import metric, valid_user_name, valid_pass_word, valid_not_empty
 
 user_detail_fields = {
@@ -41,7 +41,7 @@ login_fields = {
 }
 
 
-class UserResource(Resource):
+class AdminUserResource(Resource):
     # def __init__(self):
     #     self.parser = reqparse.RequestParser()
     #     self.parser.add_argument('userName', type=valid_user_name)
@@ -55,16 +55,16 @@ class UserResource(Resource):
     @marshal_with(user_detail_fields)
     def get(self, id=None, user_name=None):
         if id:
-            user = User.query.get_or_404(id, description='id=%d的用户不存在' % id)
+            user = AdminUser.query.get_or_404(id, description='id=%d的用户不存在' % id)
         else:
-            user = User.query.filter_by(userName=user_name).first_or_404(description='用户名%s的用户不存在' % user_name)
+            user = AdminUser.query.filter_by(userName=user_name).first_or_404(description='用户名%s的用户不存在' % user_name)
         return user
 
     @metric
     @auth.login_required
     @marshal_with(user_detail_fields)
     def put(self, id):
-        user = User.query.get_or_404(id, description='id=%d的用户不存在' % id)
+        user = AdminUser.query.get_or_404(id, description='id=%d的用户不存在' % id)
         parser = reqparse.RequestParser()
         parser.add_argument('userName', type=valid_user_name)
         parser.add_argument('passWord', type=valid_pass_word)
@@ -77,16 +77,15 @@ class UserResource(Resource):
             abort(400, message='当前token与id=%d的用户不匹配，您只能修改当前token所属的用户信息' % id)
         for key, value in args.items():
             if value is not None:
-                if key == 'userName' and User.query.filter(User.userId != id, User.userName == value).scalar():
+                if key == 'userName' and AdminUser.query.filter(AdminUser.userId != id,
+                                                                AdminUser.userName == value).scalar():
                     abort(400, message='用户名%s已经存在' % value)
                 setattr(user, key, value)
         db.session.commit()
         return user
 
 
-class UserCollectionResource(Resource):
-    # decorators = [auth.login_required]
-
+class AdminUserCollectionResource(Resource):
     @metric
     @marshal_with(user_list_fields)
     def get(self):
@@ -94,7 +93,7 @@ class UserCollectionResource(Resource):
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
         args = parser.parse_args()
-        return User.query.paginate(args['currentPage'], args['pageSize'], False)
+        return AdminUser.query.paginate(args['currentPage'], args['pageSize'], False)
 
     @metric
     @marshal_with(user_detail_fields)
@@ -107,8 +106,8 @@ class UserCollectionResource(Resource):
         parser.add_argument('globalLevel', required=True, type=valid_not_empty)
         parser.add_argument('userLevel', required=True, type=valid_not_empty)
         args = parser.parse_args()
-        user = User(**args)
-        if User.query.filter_by(userName=user.userName).scalar():
+        user = AdminUser(**args)
+        if AdminUser.query.filter_by(userName=user.userName).scalar():
             abort(400, message='用户名%s已经存在' % user.userName)
         else:
             db.session.add(user)
@@ -116,7 +115,7 @@ class UserCollectionResource(Resource):
             return user
 
 
-class TokenResource(Resource):
+class AdminTokenResource(Resource):
     @metric
     @marshal_with(login_fields)
     def post(self):
@@ -124,7 +123,25 @@ class TokenResource(Resource):
         parser.add_argument('userName', type=valid_user_name, required=True)
         parser.add_argument('passWord', type=valid_pass_word, required=True)
         args = parser.parse_args()
-        user = User.query.filter_by(userName=args['userName']).first_or_404(description='用户名%s不存在' % args['userName'])
+        user = AdminUser.query.filter_by(userName=args['userName']).first_or_404(
+            description='用户名%s不存在' % args['userName'])
+        if user.passWord == args['passWord']:
+            token = user.generate_auth_token()
+            return {'token': token}
+        else:
+            abort(400, message='密码错误')
+
+
+class EnterTokenResource(Resource):
+    @metric
+    @marshal_with(login_fields)
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('userName', type=valid_user_name, required=True)
+        parser.add_argument('passWord', type=valid_pass_word, required=True)
+        args = parser.parse_args()
+        user = EnterUser.query.filter_by(userName=args['userName']).first_or_404(
+            description='用户名%s不存在' % args['userName'])
         if user.passWord == args['passWord']:
             token = user.generate_auth_token()
             return {'token': token}
@@ -161,7 +178,8 @@ class IndexResource(Resource):
         }
 
 
-api.add_resource(UserResource, '/users/<int:id>', '/users/<string:user_name>')
-api.add_resource(UserCollectionResource, '/users')
-api.add_resource(TokenResource, '/token')
+api.add_resource(AdminUserResource, '/admin/users/<int:id>', '/admin/users/<string:user_name>')
+api.add_resource(AdminUserCollectionResource, '/admin/users')
+api.add_resource(AdminTokenResource, '/admin/token')
+api.add_resource(EnterTokenResource, '/enter/token')
 api.add_resource(IndexResource, '/index')

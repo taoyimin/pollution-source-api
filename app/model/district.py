@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/10/25 10:01
-from app.model.user import User
+from app.model.user import AdminUser
 from . import db
 
 
@@ -14,7 +14,7 @@ class District(db.Model):
 
     id = db.Column('id', primary_key=True, autoincrement=True)
     districtCode = db.Column('districtId')
-    userId = db.Column('userId', db.ForeignKey(User.userId))
+    userId = db.Column('userId', db.ForeignKey(AdminUser.userId))
 
     __mapper_args__ = {
         "order_by": id

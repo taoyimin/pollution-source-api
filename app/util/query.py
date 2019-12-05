@@ -7,6 +7,7 @@ from flask_restful import abort
 from flask_sqlalchemy import BaseQuery
 from sqlalchemy.orm import load_only
 
+import app
 from app.util.common import filter_none
 
 
@@ -47,18 +48,25 @@ class EnterQuery(CommonQuery):
         """
         from app.model.enter import Enter
         if g.user:
-            district_code_list = map(lambda d: d.districtCode, g.user.districts)
-            if g.user.globalLevel == 'province':
-                if g.user.userLevel == '1':
-                    return self.filter(Enter.cityCode.in_(district_code_list))
-                if g.user.userLevel == '2':
+            if g.type == app.app.config['ADMIN_USER_TYPE']:
+                # 环保用户
+                district_code_list = map(lambda d: d.districtCode, g.user.districts)
+                if g.user.globalLevel == 'province':
+                    if g.user.userLevel == '1':
+                        return self.filter(Enter.cityCode.in_(district_code_list))
+                    if g.user.userLevel == '2':
+                        return self.filter(Enter.areaCode.in_(district_code_list))
+                    if g.user.userLevel == '3':
+                        return self.filter(Enter.countyCode.in_(district_code_list))
+                if g.user.globalLevel == 'city' or 'county':
                     return self.filter(Enter.areaCode.in_(district_code_list))
-                if g.user.userLevel == '3':
+                if g.user.globalLevel == 'industrialPark':
                     return self.filter(Enter.countyCode.in_(district_code_list))
-            if g.user.globalLevel == 'city' or 'county':
-                return self.filter(Enter.areaCode.in_(district_code_list))
-            if g.user.globalLevel == 'industrialPark':
-                return self.filter(Enter.countyCode.in_(district_code_list))
+            elif g.type == app.app.config['ENTER_USER_TYPE']:
+                # 企业用户
+                return self.filter(Enter.enterId == g.user.enterId)
+            else:
+                abort(400, message='根据用户过滤掉不在管辖区域的企业失败，因为未知的用户类型！type=%d' % g.type)
         else:
             abort(400, message='根据用户过滤掉不在管辖区域的企业失败，因为用户信息为空')
 
