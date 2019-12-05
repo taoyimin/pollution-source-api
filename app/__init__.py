@@ -40,6 +40,10 @@ app.config['FACTOR_REPORT_FILE_TYPE'] = 'enterAbnormalApply'
 app.config['ORDER_PROCESS_FILE_MODEL'] = 'process'
 # 报警管理单处理流程附件的file type
 app.config['ORDER_PROCESS_FILE_TYPE'] = 'provinceSupervise'
+# 管理员用户类型
+app.config['ADMIN_USER_TYPE'] = 0
+# 企业用户类型
+app.config['ENTER_USER_TYPE'] = 1
 app.register_blueprint(api_blueprint)
 model.init_app(app)
 
