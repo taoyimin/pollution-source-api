@@ -36,7 +36,7 @@ class BaseUser:
         except SignatureExpired:
             abort(401, message='token过期')
             return False
-        except BadSignature as e:
+        except BadSignature:
             abort(401, message='token无效')
             return False
         if data:
@@ -65,7 +65,7 @@ class AdminUser(db.Model, BaseUser):
         realName: 真实名称
         passWord: 明文密码
         globalLevel:
-        userLevel:
+        userLevel: 用户级别 1：省 2：地市 3：区县 4：园区
         isDelete: 是否删除
         districts: 用户的管辖区域集合
     """

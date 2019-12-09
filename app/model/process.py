@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/11/7 10:03
+import datetime
+
 from app.model.attachment import Attachment
 from app.model.dictionary import Dictionary
 from app.model.order import Order
@@ -14,6 +16,14 @@ class Process(db.Model):
     报警管理单流程实体类
     attributes:
         processId: 自增长主键
+        operatePerson: 操作人
+        operateUnit: 操作单位
+        operateType: 操作类型
+        operateTime: 操作时间
+        operateDesc: 操作描述
+        attachmentIds: 关联的附件id（多个附件用逗号隔开）
+        orderId: 关联报警管理单外键
+        order: 对应的报警管理单
     """
     __table_args__ = {'schema': 'pollution_report.dbo'}
     __tablename__ = 't_common_supervise_process_control'
@@ -23,7 +33,7 @@ class Process(db.Model):
     operatePerson = db.Column('operate_person_name')
     operateUnit = db.Column('operate_uint')
     operateType = db.Column('operate_type')
-    operateTime = db.Column('operate_time')
+    operateTime = db.Column('operate_time', default=datetime.datetime.now())
     operateDesc = db.Column('operate_desc')
     attachmentIds = db.Column('attach')
     orderId = db.Column('supervise_id', db.ForeignKey(Order.orderId))

@@ -36,9 +36,9 @@ user_list_fields = {
     'list': fields.List(fields.Nested(user_item_fields), attribute=lambda pagination: pagination.items)
 }
 
-login_fields = {
-    'token': fields.String
-}
+# login_fields = {
+#     'token': fields.String
+# }
 
 
 class AdminUserResource(Resource):
@@ -117,7 +117,7 @@ class AdminUserCollectionResource(Resource):
 
 class AdminTokenResource(Resource):
     @metric
-    @marshal_with(login_fields)
+    # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userName', type=valid_user_name, required=True)
@@ -134,7 +134,7 @@ class AdminTokenResource(Resource):
 
 class EnterTokenResource(Resource):
     @metric
-    @marshal_with(login_fields)
+    # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userName', type=valid_user_name, required=True)
@@ -144,7 +144,7 @@ class EnterTokenResource(Resource):
             description='用户名%s不存在' % args['userName'])
         if user.passWord == args['passWord']:
             token = user.generate_auth_token()
-            return {'token': token}
+            return {'token': token, 'enterId': user.enterId}
         else:
             abort(400, message='密码错误')
 

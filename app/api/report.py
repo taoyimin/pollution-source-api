@@ -303,7 +303,6 @@ class DischargeReportCollectionResource(Resource):
                 args['fileType'] = app.app.config['DISCHARGE_REPORT_FILE_TYPE']
                 attachment = Attachment(**args)
                 db.session.add(attachment)
-                db.session.flush()
         db.session.commit()
         return {'success': True, 'message': '提交成功'}
 
@@ -371,7 +370,6 @@ class FactorReportCollectionResource(Resource):
                 args['fileType'] = app.app.config['FACTOR_REPORT_FILE_TYPE']
                 attachment = Attachment(**args)
                 db.session.add(attachment)
-                db.session.flush()
         db.session.commit()
         return {'success': True, 'message': '提交成功'}
 
