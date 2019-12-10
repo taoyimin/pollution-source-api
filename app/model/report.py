@@ -44,7 +44,7 @@ class Report(db.Model):
     endTime = db.Column('end_time')
     dataType = db.Column('dataType')
     state = db.Column('is_review', default=1)
-    reportTime = db.Column('update_time', default=datetime.datetime.now())
+    reportTime = db.Column('update_time', default=func.now())
     isDelete = db.Column('is_deleted', default=0)
     dataSource = db.Column('data_scource', default='wryapp')
     enterId = db.Column('enter_id', db.ForeignKey(Enter.enterId), nullable=False)
@@ -110,15 +110,15 @@ class DischargeReport(Report):
         reportTime: 申报时间（和父类用的字段不同，所以重写）
         stopReason: 停产原因
     """
-    reportTime = db.Column('applay_time', default=datetime.datetime.now())
+    reportTime = db.Column('applay_time', default=func.now())
     stopReason = db.Column('stop_reason')
 
     __mapper_args__ = {
         "order_by": reportTime.desc()
     }
 
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    # def __init__(self, **kwargs):
+    #     self.__dict__.update(kwargs)
 
     @property
     def reportTimeStr(self):
@@ -144,8 +144,8 @@ class FactorReport(Report):
     factorCode = db.Column('factor_code')
     exceptionReason = db.Column('exception_reason')
 
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
+    # def __init__(self, **kwargs):
+    #     self.__dict__.update(kwargs)
 
     @property
     def alarmTypeStr(self):

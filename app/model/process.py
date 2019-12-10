@@ -4,6 +4,8 @@
 # Time  :2019/11/7 10:03
 import datetime
 
+from sqlalchemy import func
+
 from app.model.attachment import Attachment
 from app.model.dictionary import Dictionary
 from app.model.order import Order
@@ -16,12 +18,13 @@ class Process(db.Model):
     报警管理单流程实体类
     attributes:
         processId: 自增长主键
+        operatePersonId: 操作人Id
         operatePerson: 操作人
-        operateUnit: 操作单位
-        operateType: 操作类型
+        operateUnit: 操作单位 环保用户取user中的globalLevel字段，企业用户直接用company
+        operateType: 操作类型 0：督办 1：处理 2：审核 3：催办 4：退回
         operateTime: 操作时间
         operateDesc: 操作描述
-        attachmentIds: 关联的附件id（多个附件用逗号隔开）
+        attachmentIds: 关联的附件id（多个附件用逗号隔开，PC端上传的不但以逗号分割还会以逗号结尾，APP端上传的不会以逗号结尾）
         orderId: 关联报警管理单外键
         order: 对应的报警管理单
     """
@@ -29,11 +32,12 @@ class Process(db.Model):
     __tablename__ = 't_common_supervise_process_control'
     query_class = ProcessQuery
 
-    processId = db.Column('id', primary_key=True, autoincrement=True)
+    processId = db.Column(db.Integer, name='id', primary_key=True, autoincrement=True)
+    operatePersonId = db.Column('operate_person')
     operatePerson = db.Column('operate_person_name')
     operateUnit = db.Column('operate_uint')
     operateType = db.Column('operate_type')
-    operateTime = db.Column('operate_time', default=datetime.datetime.now())
+    operateTime = db.Column('operate_time', default=func.now())
     operateDesc = db.Column('operate_desc')
     attachmentIds = db.Column('attach')
     orderId = db.Column('supervise_id', db.ForeignKey(Order.orderId))
@@ -42,6 +46,9 @@ class Process(db.Model):
     __mapper_args__ = {
         "order_by": operateTime
     }
+
+    # def __init__(self, **kwargs):
+    #     self.__dict__.update(kwargs)
 
     @property
     def operateTypeStr(self):

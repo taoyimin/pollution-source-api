@@ -27,4 +27,4 @@ class Dictionary(db.Model):
     }
 
     def __repr__(self):
-        return '<Dictionary %r>' % self.dictName
+        return '<Dictionary %r>' % self.dictionaryId

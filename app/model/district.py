@@ -21,4 +21,4 @@ class District(db.Model):
     }
 
     def __repr__(self):
-        return '<District %r>' % self.districtCode
+        return '<District %r>' % self.id

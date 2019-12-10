@@ -26,24 +26,26 @@ app.config.update(RESTFUL_JSON=dict(ensure_ascii=False))
 # app.config['DATA_SOURCE'] = 'wryapp'
 # 设置文件保存的根目录
 app.config['UPLOAD_ROOT_DIRECTORY'] = 'D:/pollution_source/files'
+# app.config['UPLOAD_ROOT_DIRECTORY'] = '/usr/files'
 # 设置文件保存的子目录
 app.config['UPLOAD_SUB_DIRECTORY'] = 'wryapp'
 # 排口异常申报附件的file model
-app.config['DISCHARGE_REPORT_FILE_MODEL'] = 'dischargeReport'
+app.config['DISCHARGE_REPORT_FILE_MODEL'] = 'enterStop'
 # 排口异常申报附件的file type
 app.config['DISCHARGE_REPORT_FILE_TYPE'] = 'enterStopApply'
 # 因子异常申报附件的file model
-app.config['FACTOR_REPORT_FILE_MODEL'] = 'factorReport'
+app.config['FACTOR_REPORT_FILE_MODEL'] = 'enterStop'
 # 因子异常申报附件的file type
 app.config['FACTOR_REPORT_FILE_TYPE'] = 'enterAbnormalApply'
 # 报警管理单处理流程附件的file model
-app.config['ORDER_PROCESS_FILE_MODEL'] = 'process'
+app.config['ORDER_PROCESS_FILE_MODEL'] = 'supervise'
 # 报警管理单处理流程附件的file type
 app.config['ORDER_PROCESS_FILE_TYPE'] = 'provinceSupervise'
 # 管理员用户类型
 app.config['ADMIN_USER_TYPE'] = 0
 # 企业用户类型
 app.config['ENTER_USER_TYPE'] = 1
+# 注册蓝图
 app.register_blueprint(api_blueprint)
 model.init_app(app)
 
