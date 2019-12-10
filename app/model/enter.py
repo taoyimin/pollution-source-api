@@ -4,7 +4,7 @@
 # Time  :2019/10/22 16:01
 from sqlalchemy import func
 
-from app.util.query import EnterQuery, MonitorQuery, OrderQuery, DischargeQuery, ReportQuery, LicenseQuery
+from app.util.query import EnterQuery, MonitorQuery, OrderQuery, DischargeQuery, ReportQuery, LicenseQuery, FactorQuery
 from . import db
 
 
@@ -63,6 +63,7 @@ class Enter(db.Model):
                                       query_class=ReportQuery)
     factorReports = db.relationship('FactorReport', lazy='dynamic', back_populates="enter", query_class=ReportQuery)
     licenses = db.relationship('License', lazy='dynamic', back_populates="enter", query_class=LicenseQuery)
+    factors = db.relationship('Factor', lazy='dynamic', back_populates="enter", query_class=FactorQuery)
 
     __mapper_args__ = {
         "order_by": enterId

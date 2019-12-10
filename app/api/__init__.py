@@ -23,4 +23,5 @@ from . import attachment
 from . import process
 from . import user
 from . import license
+from . import factor
 from app.model.district import District

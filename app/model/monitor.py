@@ -6,7 +6,7 @@ from sqlalchemy import func
 
 from app.model.discharge import Discharge
 from app.model.enter import Enter
-from app.util.query import MonitorQuery, OrderQuery, ReportQuery
+from app.util.query import MonitorQuery, OrderQuery, ReportQuery, FactorQuery
 from . import db
 
 
@@ -38,6 +38,7 @@ class Monitor(db.Model):
     dischargeReports = db.relationship('DischargeReport', lazy='dynamic', back_populates="monitor",
                                        query_class=ReportQuery)
     factorReports = db.relationship('FactorReport', lazy='dynamic', back_populates="monitor", query_class=ReportQuery)
+    factors = db.relationship('Factor', lazy='dynamic', back_populates="monitor", query_class=FactorQuery)
 
     __mapper_args__ = {
         "order_by": monitorId

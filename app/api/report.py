@@ -177,24 +177,22 @@ class ReportCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', type=str, default=None)
-        parser.add_argument('dischargeId', default=None)
-        parser.add_argument('monitorId', default=None)
+        parser.add_argument('enterId', type=str, default=enter_id)
+        parser.add_argument('dischargeId', default=discharge_id)
+        parser.add_argument('monitorId', default=monitor_id)
         parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).reports
-        elif discharge_id or args['dischargeId']:
-            query = Discharge.query \
-                .get_or_abort(discharge_id if discharge_id else args.pop('dischargeId')).reports
-        elif monitor_id or args['monitorId']:
-            query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).reports
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).reports
+        elif args['dischargeId']:
+            query = Discharge.query.get_or_abort(args.pop('dischargeId')).reports
+        elif args['monitorId']:
+            query = Monitor.query.get_or_abort(args.pop('monitorId')).reports
         else:
             query = Report.query.filter_by_user()
-        return query.filter_by_args(args) \
-            .paginate(current_page, page_size, False)
+        return query.filter_by_args(args).paginate(current_page, page_size, False)
 
 
 class LongStopReportResource(Resource):
@@ -215,12 +213,12 @@ class LongStopReportCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', type=str, default=None)
+        parser.add_argument('enterId', default=enter_id)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).longStopReports
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).longStopReports
         else:
             query = LongStopReport.query.filter_by_user()
         return query.filter_by_args(args) \
@@ -260,24 +258,22 @@ class DischargeReportCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', type=str, default=None)
-        parser.add_argument('dischargeId', default=None)
-        parser.add_argument('monitorId', default=None)
+        parser.add_argument('enterId', default=enter_id)
+        parser.add_argument('dischargeId', default=discharge_id)
+        parser.add_argument('monitorId', default=monitor_id)
         parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).dischargeReports
-        elif discharge_id or args['dischargeId']:
-            query = Discharge.query \
-                .get_or_abort(discharge_id if discharge_id else args.pop('dischargeId')).dischargeReports
-        elif monitor_id or args['monitorId']:
-            query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).dischargeReports
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).dischargeReports
+        elif args['dischargeId']:
+            query = Discharge.query.get_or_abort(args.pop('dischargeId')).dischargeReports
+        elif args['monitorId']:
+            query = Monitor.query.get_or_abort(args.pop('monitorId')).dischargeReports
         else:
             query = DischargeReport.query.filter_by_user()
-        return query.filter_by_args(args) \
-            .paginate(current_page, page_size, False)
+        return query.filter_by_args(args).paginate(current_page, page_size, False)
 
     @marshal_with(upload_return_fields)
     def post(self, enter_id=None, discharge_id=None, monitor_id=None):
@@ -329,24 +325,22 @@ class FactorReportCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', type=str, default=None)
-        parser.add_argument('dischargeId', default=None)
-        parser.add_argument('monitorId', default=None)
+        parser.add_argument('enterId', default=enter_id)
+        parser.add_argument('dischargeId', default=discharge_id)
+        parser.add_argument('monitorId', default=monitor_id)
         parser.add_argument('state', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).factorReports
-        elif discharge_id or args['dischargeId']:
-            query = Discharge.query \
-                .get_or_abort(discharge_id if discharge_id else args.pop('dischargeId')).factorReports
-        elif monitor_id or args['monitorId']:
-            query = Monitor.query.get_or_abort(monitor_id if monitor_id else args.pop('monitorId')).factorReports
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).factorReports
+        elif args['dischargeId']:
+            query = Discharge.query.get_or_abort(args.pop('dischargeId')).factorReports
+        elif args['monitorId']:
+            query = Monitor.query.get_or_abort(args.pop('monitorId')).factorReports
         else:
             query = FactorReport.query.filter_by_user()
-        return query.filter_by_args(args) \
-            .paginate(current_page, page_size, False)
+        return query.filter_by_args(args).paginate(current_page, page_size, False)
 
     @marshal_with(upload_return_fields)
     def post(self, enter_id=None, discharge_id=None, monitor_id=None):

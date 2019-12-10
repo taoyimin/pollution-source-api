@@ -35,6 +35,7 @@ def before_compile(query):
     from app.model.license import LicenseFactor
     from app.model.user import AdminUser
     from app.model.user import EnterUser
+    from app.model.factor import Factor
     for ent in query.column_descriptions:
         entity = ent['entity']
         if entity is None:
@@ -42,7 +43,7 @@ def before_compile(query):
         insp = inspect(ent['entity'])
         mapper = getattr(insp, 'mapper', None)
         if mapper and issubclass(mapper.class_,
-                                 (AdminUser, Enter, EnterUser, Attachment, Dictionary, License, LicenseFactor)):
+                                 (AdminUser, Enter, EnterUser, Attachment, Dictionary, License, LicenseFactor, Factor)):
             # 把isDelete=0的数据保留
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].isDelete == 0)

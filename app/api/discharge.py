@@ -78,13 +78,13 @@ class DischargeCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', default=None)
+        parser.add_argument('enterId', default=enter_id)
         parser.add_argument('dischargeType', default=None)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).discharges
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).discharges
         else:
             query = Discharge.query.filter_by_user()
         return query.filter_by_args(args) \

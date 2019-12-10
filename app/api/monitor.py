@@ -60,7 +60,7 @@ class MonitorResource(Resource):
             return Monitor.query.get_or_abort(monitor_id)
         elif order_id:
             return Order.query.get_or_abort(order_id).monitor
-        elif order_id:
+        elif report_id:
             return Report.query.get_or_abort(report_id).monitor
         elif discharge_report_id:
             return DischargeReport.query.get_or_abort(discharge_report_id).monitor
@@ -77,8 +77,8 @@ class MonitorCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', default=None)
-        parser.add_argument('dischargeId', default=None)
+        parser.add_argument('enterId', default=enter_id)
+        parser.add_argument('dischargeId', default=discharge_id)
         parser.add_argument('enterName', default=None)
         parser.add_argument('areaCode', default=None)
         parser.add_argument('monitorType', default=None)
@@ -86,10 +86,10 @@ class MonitorCollectionResource(Resource):
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).monitors
-        elif discharge_id or args['dischargeId']:
-            query = Discharge.query.get_or_abort(discharge_id if discharge_id else args.pop('dischargeId')).monitors
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).monitors
+        elif args['dischargeId']:
+            query = Discharge.query.get_or_abort(args.pop('dischargeId')).monitors
         else:
             query = Monitor.query.filter_by_user()
         return query.filter_by_state(args.pop('state')) \

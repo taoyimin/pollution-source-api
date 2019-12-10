@@ -100,12 +100,12 @@ class LicenseCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('enterId', default=None)
+        parser.add_argument('enterId', default=enter_id)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if enter_id or args['enterId']:
-            query = Enter.query.get_or_abort(enter_id if enter_id else args.pop('enterId')).licenses
+        if args['enterId']:
+            query = Enter.query.get_or_abort(args.pop('enterId')).licenses
         else:
             query = License.query.filter_by_user()
         return query.filter_by_args(args) \
@@ -117,9 +117,8 @@ class LicenseFactorResource(Resource):
 
     @metric
     @marshal_with(license_factor_detail_fields)
-    def get(self, factor_id=None):
-        if factor_id:
-            return LicenseFactor.query.get_or_abort(factor_id)
+    def get(self, factor_id):
+        return LicenseFactor.query.get_or_abort(factor_id)
 
 
 class LicenseFactorCollectionResource(Resource):
@@ -131,12 +130,12 @@ class LicenseFactorCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('licenseId', default=None)
+        parser.add_argument('licenseId', default=license_id)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if license_id or args['licenseId']:
-            query = License.query.get_or_abort(license_id if license_id else args.pop('licenseId')).licenseFactors
+        if args['licenseId']:
+            query = License.query.get_or_abort(args.pop('licenseId')).licenseFactors
         else:
             query = LicenseFactor.query
         return query.filter_by_args(args) \

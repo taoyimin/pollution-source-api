@@ -5,7 +5,7 @@
 from sqlalchemy import func
 
 from app.model.enter import Enter
-from app.util.query import MonitorQuery, DischargeQuery, ReportQuery
+from app.util.query import MonitorQuery, DischargeQuery, ReportQuery, FactorQuery
 from . import db
 
 
@@ -52,6 +52,7 @@ class Discharge(db.Model):
     dischargeReports = db.relationship('DischargeReport', lazy='dynamic', back_populates="discharge",
                                        query_class=ReportQuery)
     factorReports = db.relationship('FactorReport', lazy='dynamic', back_populates="discharge", query_class=ReportQuery)
+    factors = db.relationship('Factor', lazy='dynamic', back_populates="discharge", query_class=FactorQuery)
 
     __mapper_args__ = {
         "order_by": dischargeId

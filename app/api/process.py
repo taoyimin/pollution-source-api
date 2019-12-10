@@ -61,12 +61,12 @@ class ProcessCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('orderId', default=None)
+        parser.add_argument('orderId', default=order_id)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if order_id or args['orderId']:
-            query = Order.query.get_or_abort(order_id if order_id else args.pop('orderId')).processes
+        if args['orderId']:
+            query = Order.query.get_or_abort(args.pop('orderId')).processes
         else:
             query = Process.query
         return query.filter_by_args(args) \

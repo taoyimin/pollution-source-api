@@ -36,10 +36,6 @@ user_list_fields = {
     'list': fields.List(fields.Nested(user_item_fields), attribute=lambda pagination: pagination.items)
 }
 
-# login_fields = {
-#     'token': fields.String
-# }
-
 
 class AdminUserResource(Resource):
     # def __init__(self):

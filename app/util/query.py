@@ -158,6 +158,15 @@ class MonitorQuery(CommonQuery):
             abort(400, message='参数state=%s不合法' % state)
 
 
+class FactorQuery(CommonQuery):
+    """
+    监测因子查询类
+    """
+
+    def get_or_abort(self, ident):
+        return self.get_or_404(ident, description='id=%s的监测因子不存在' % ident)
+
+
 class OrderQuery(CommonQuery):
     """
     报警管理单查询类

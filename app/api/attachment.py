@@ -54,20 +54,18 @@ class AttachmentCollectionResource(Resource):
         parser = reqparse.RequestParser()
         parser.add_argument('currentPage', type=int, default=1)
         parser.add_argument('pageSize', type=int, default=20)
-        parser.add_argument('dischargeReportId', default=None)
-        parser.add_argument('factorReportId', default=None)
-        parser.add_argument('processId', default=None)
+        parser.add_argument('dischargeReportId', default=discharge_report_id)
+        parser.add_argument('factorReportId', default=factor_report_id)
+        parser.add_argument('processId', default=process_id)
         args = parser.parse_args()
         current_page = args.pop('currentPage')
         page_size = args.pop('pageSize')
-        if discharge_report_id or args['dischargeReportId']:
-            query = DischargeReport.query.get_or_abort(
-                discharge_report_id if discharge_report_id else args.pop('dischargeReportId')).attachments
-        elif factor_report_id or args['factorReportId']:
-            query = FactorReport.query.get_or_abort(
-                factor_report_id if factor_report_id else args.pop('factorReportId')).attachments
-        elif process_id or args['processId']:
-            query = Process.query.get_or_abort(process_id if process_id else args.pop('processId')).attachments
+        if args['dischargeReportId']:
+            query = DischargeReport.query.get_or_abort(args.pop('dischargeReportId')).attachments
+        elif args['factorReportId']:
+            query = FactorReport.query.get_or_abort(args.pop('factorReportId')).attachments
+        elif args['processId']:
+            query = Process.query.get_or_abort(args.pop('processId')).attachments
         else:
             query = Attachment.query
         return query.paginate(current_page, page_size, False)
