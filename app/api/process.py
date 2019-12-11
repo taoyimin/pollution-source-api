@@ -13,7 +13,7 @@ from app.model import auth, db
 from app.model.attachment import Attachment
 from app.model.order import Order
 from app.model.process import Process
-from app.util.common import metric, valid_not_empty, save_file
+from app.util.common import valid_not_empty, save_file
 
 process_detail_fields = {
     'processId': fields.String,
@@ -46,7 +46,6 @@ process_list_fields = {
 class ProcessResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(process_detail_fields)
     def get(self, process_id):
         return Process.query.get_or_abort(process_id)
@@ -55,7 +54,6 @@ class ProcessResource(Resource):
 class ProcessCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(process_list_fields)
     def get(self, order_id=None):
         parser = reqparse.RequestParser()

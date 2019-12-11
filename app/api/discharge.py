@@ -10,7 +10,6 @@ from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.report import Report, DischargeReport, FactorReport
-from app.util.common import metric
 
 discharge_detail_fields = {
     'dischargeId': fields.String,
@@ -54,7 +53,6 @@ discharge_list_fields = {
 class DischargeResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(discharge_detail_fields)
     def get(self, discharge_id=None, monitor_id=None, report_id=None, discharge_report_id=None, factor_report_id=None):
         if discharge_id:
@@ -72,7 +70,6 @@ class DischargeResource(Resource):
 class DischargeCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(discharge_list_fields)
     def get(self, enter_id=None):
         parser = reqparse.RequestParser()

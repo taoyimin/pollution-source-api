@@ -10,7 +10,6 @@ from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.factor import Factor
 from app.model.monitor import Monitor
-from app.util.common import metric
 
 factor_detail_fields = {
     'factorId': fields.String,
@@ -34,7 +33,6 @@ factor_list_fields = {
 class FactorResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(factor_detail_fields)
     def get(self, factor_id):
         return Factor.query.get_or_abort(factor_id)
@@ -43,7 +41,6 @@ class FactorResource(Resource):
 class FactorCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(factor_list_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None):
         parser = reqparse.RequestParser()

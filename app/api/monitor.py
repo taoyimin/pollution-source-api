@@ -11,7 +11,6 @@ from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
 from app.model.report import Report, FactorReport, DischargeReport
-from app.util.common import metric
 
 monitor_detail_fields = {
     'monitorId': fields.String,
@@ -53,7 +52,6 @@ monitor_list_fields = {
 class MonitorResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(monitor_detail_fields)
     def get(self, monitor_id=None, order_id=None, report_id=None, discharge_report_id=None, factor_report_id=None):
         if monitor_id:
@@ -71,7 +69,6 @@ class MonitorResource(Resource):
 class MonitorCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(monitor_list_fields)
     def get(self, enter_id=None, discharge_id=None):
         parser = reqparse.RequestParser()

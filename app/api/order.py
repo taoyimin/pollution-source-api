@@ -11,7 +11,6 @@ from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
 from app.model.process import Process
-from app.util.common import metric
 
 order_detail_fields = {
     'orderId': fields.String,
@@ -52,7 +51,6 @@ order_list_fields = {
 class OrderResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(order_detail_fields)
     def get(self, order_id=None, process_id=None):
         if order_id:
@@ -64,7 +62,6 @@ class OrderResource(Resource):
 class OrderCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(order_list_fields)
     def get(self, enter_id=None, monitor_id=None):
         parser = reqparse.RequestParser()

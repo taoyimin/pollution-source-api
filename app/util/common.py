@@ -114,20 +114,20 @@ def valid_not_empty(string):
 #         return False
 
 
-def metric(func):
-    """
-    装饰器：打印函数执行的时间
-    """
-
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        print('%s() execute in %s ms' % (func.__name__, (end - start) * 1000))
-        return result
-
-    return wrapper
+# def metric(func):
+#     """
+#     装饰器：打印函数执行的时间
+#     """
+#
+#     @functools.wraps(func)
+#     def wrapper(*args, **kwargs):
+#         start = time.time()
+#         result = func(*args, **kwargs)
+#         end = time.time()
+#         print('%s() execute in %s ms' % (func.__name__, (end - start) * 1000))
+#         return result
+#
+#     return wrapper
 
 
 def filter_none(data):

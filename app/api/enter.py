@@ -11,7 +11,6 @@ from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.order import Order
 from app.model.report import Report, DischargeReport, FactorReport, LongStopReport
-from app.util.common import metric
 
 enter_detail_fields = {
     'enterId': fields.String,
@@ -62,7 +61,6 @@ enter_list_fields = {
 class EnterResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(enter_detail_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None, order_id=None, report_id=None,
             long_stop_report_id=None, discharge_report_id=None, factor_report_id=None):
@@ -87,7 +85,6 @@ class EnterResource(Resource):
 class EnterCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(enter_list_fields)
     def get(self):
         parser = reqparse.RequestParser()

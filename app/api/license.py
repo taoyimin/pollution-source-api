@@ -9,7 +9,6 @@ from app.api.attachment import attachment_item_fields
 from app.model import auth
 from app.model.enter import Enter
 from app.model.license import License, LicenseFactor
-from app.util.common import metric
 
 license_factor_detail_fields = {
     'factorId': fields.String,
@@ -82,7 +81,6 @@ license_list_fields = {
 class LicenseResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(license_detail_fields)
     def get(self, license_id=None, factor_id=None):
         if license_id:
@@ -94,7 +92,6 @@ class LicenseResource(Resource):
 class LicenseCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(license_list_fields)
     def get(self, enter_id=None):
         parser = reqparse.RequestParser()
@@ -115,7 +112,6 @@ class LicenseCollectionResource(Resource):
 class LicenseFactorResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(license_factor_detail_fields)
     def get(self, factor_id):
         return LicenseFactor.query.get_or_abort(factor_id)
@@ -124,7 +120,6 @@ class LicenseFactorResource(Resource):
 class LicenseFactorCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(license_factor_list_fields)
     def get(self, license_id=None):
         parser = reqparse.RequestParser()

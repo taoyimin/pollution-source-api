@@ -8,7 +8,7 @@ from flask_restful import reqparse, Resource, fields, marshal_with, abort
 from app.api import api
 from app.model import db, auth
 from app.model.user import AdminUser, EnterUser
-from app.util.common import metric, valid_user_name, valid_pass_word, valid_not_empty
+from app.util.common import valid_user_name, valid_pass_word, valid_not_empty
 
 user_detail_fields = {
     'userId': fields.Integer,
@@ -47,7 +47,6 @@ class AdminUserResource(Resource):
     #     self.parser.add_argument('userLevel', default=None)
     #     super(UserResource, self).__init__()
 
-    @metric
     @marshal_with(user_detail_fields)
     def get(self, id=None, user_name=None):
         if id:
@@ -56,7 +55,6 @@ class AdminUserResource(Resource):
             user = AdminUser.query.filter_by(userName=user_name).first_or_404(description='用户名%s的用户不存在' % user_name)
         return user
 
-    @metric
     @auth.login_required
     @marshal_with(user_detail_fields)
     def put(self, id):
@@ -82,7 +80,6 @@ class AdminUserResource(Resource):
 
 
 class AdminUserCollectionResource(Resource):
-    @metric
     @marshal_with(user_list_fields)
     def get(self):
         parser = reqparse.RequestParser()
@@ -91,7 +88,6 @@ class AdminUserCollectionResource(Resource):
         args = parser.parse_args()
         return AdminUser.query.paginate(args['currentPage'], args['pageSize'], False)
 
-    @metric
     @marshal_with(user_detail_fields)
     def post(self):
         parser = reqparse.RequestParser()
@@ -112,7 +108,6 @@ class AdminUserCollectionResource(Resource):
 
 
 class AdminTokenResource(Resource):
-    @metric
     # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
@@ -129,7 +124,6 @@ class AdminTokenResource(Resource):
 
 
 class EnterTokenResource(Resource):
-    @metric
     # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
@@ -148,7 +142,6 @@ class EnterTokenResource(Resource):
 class IndexResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     def get(self):
         return {
             'code': 1,

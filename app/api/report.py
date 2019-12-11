@@ -14,7 +14,7 @@ from app.model.discharge import Discharge
 from app.model.enter import Enter
 from app.model.monitor import Monitor
 from app.model.report import Report, DischargeReport, FactorReport, LongStopReport
-from app.util.common import metric, valid_not_empty, save_file
+from app.util.common import valid_not_empty, save_file
 
 report_detail_fields = {
     'reportId': fields.String,
@@ -162,7 +162,6 @@ factor_report_list_fields = {
 class ReportResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(report_detail_fields)
     def get(self, report_id):
         return Report.query.get_or_abort(report_id)
@@ -171,7 +170,6 @@ class ReportResource(Resource):
 class ReportCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(report_list_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None):
         parser = reqparse.RequestParser()
@@ -198,7 +196,6 @@ class ReportCollectionResource(Resource):
 class LongStopReportResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(long_stop_report_detail_fields)
     def get(self, report_id):
         return LongStopReport.query.get_or_abort(report_id)
@@ -207,7 +204,6 @@ class LongStopReportResource(Resource):
 class LongStopReportCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(long_stop_report_list_fields)
     def get(self, enter_id=None):
         parser = reqparse.RequestParser()
@@ -243,7 +239,6 @@ class LongStopReportCollectionResource(Resource):
 class DischargeReportResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(discharge_report_detail_fields)
     def get(self, report_id):
         return DischargeReport.query.get_or_abort(report_id)
@@ -252,7 +247,6 @@ class DischargeReportResource(Resource):
 class DischargeReportCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(discharge_report_list_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None):
         parser = reqparse.RequestParser()
@@ -310,7 +304,6 @@ class DischargeReportCollectionResource(Resource):
 class FactorReportResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(factor_report_detail_fields)
     def get(self, report_id):
         return FactorReport.query.get_or_abort(report_id)
@@ -319,7 +312,6 @@ class FactorReportResource(Resource):
 class FactorReportCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(factor_report_list_fields)
     def get(self, enter_id=None, discharge_id=None, monitor_id=None):
         parser = reqparse.RequestParser()

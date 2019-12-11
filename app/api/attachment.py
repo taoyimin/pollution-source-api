@@ -9,7 +9,6 @@ from app.model import auth
 from app.model.attachment import Attachment
 from app.model.process import Process
 from app.model.report import DischargeReport, FactorReport
-from app.util.common import metric
 
 attachment_detail_fields = {
     'attachmentId': fields.String,
@@ -39,7 +38,6 @@ attachment_list_fields = {
 class AttachmentResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(attachment_detail_fields)
     def get(self, attachment_id):
         return Attachment.query.get_or_abort(attachment_id)
@@ -48,7 +46,6 @@ class AttachmentResource(Resource):
 class AttachmentCollectionResource(Resource):
     decorators = [auth.login_required]
 
-    @metric
     @marshal_with(attachment_list_fields)
     def get(self, discharge_report_id=None, factor_report_id=None, process_id=None):
         parser = reqparse.RequestParser()
