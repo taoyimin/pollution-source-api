@@ -6,10 +6,6 @@ import sys
 import os
 import multiprocessing
 
-import gevent
-
-gevent.monkey.patch_all()
-
 path_of_current_file = os.path.abspath(__file__)
 path_of_current_dir = os.path.split(path_of_current_file)[0]
 
