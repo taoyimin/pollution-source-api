@@ -9,7 +9,7 @@ import multiprocessing
 path_of_current_file = os.path.abspath(__file__)
 path_of_current_dir = os.path.split(path_of_current_file)[0]
 
-_file_name = os.path.basename(__file__)
+_file_name = 'log'
 
 sys.path.insert(0, path_of_current_dir)
 
