@@ -11,7 +11,7 @@ path_of_current_dir = os.path.split(path_of_current_file)[0]
 
 sys.path.insert(0, path_of_current_dir)
 
-worker_class = 'sync'
+worker_class = 'gevent'
 workers = multiprocessing.cpu_count() * 2 + 1
 
 chdir = path_of_current_dir
@@ -24,7 +24,6 @@ graceful_timeout = 30
 loglevel = 'info'
 
 # 开启后台运行
-daemon = True
 reload = True
 debug = False
 
