@@ -77,7 +77,7 @@ class ProcessCollectionResource(Resource):
         parser.add_argument('operateType', required=True, type=valid_not_empty)
         parser.add_argument('operateDesc', required=True, type=valid_not_empty)
         parser.add_argument('orderId', required=order_id is None, default=order_id, type=valid_not_empty)
-        parser.add_argument('file', type=werkzeug.FileStorage, location='files', required=False, action='append')
+        parser.add_argument('file[]', type=werkzeug.FileStorage, location='files', required=False, action='append')
         args = parser.parse_args()
         if g.type == app.app.config['ADMIN_USER_TYPE']:
             # 环保用户
@@ -88,7 +88,7 @@ class ProcessCollectionResource(Resource):
         else:
             abort(400, message='未知的用户类型，type=%d' % g.type)
         args['operatePersonId'] = g.user.userId
-        files = args.pop('file')
+        files = args.pop('file[]')
         if files:
             ids = []
             for file in files:

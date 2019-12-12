@@ -3,6 +3,7 @@
 # Author:Tao Yimin
 # Time  :2019/10/22 19:23
 import werkzeug
+from flask import request
 from flask_restful import marshal_with, Resource, fields, reqparse
 
 import app
@@ -282,10 +283,10 @@ class DischargeReportCollectionResource(Resource):
         parser.add_argument('enterId', required=enter_id is None, default=enter_id, type=valid_not_empty)
         parser.add_argument('dischargeId', required=discharge_id is None, default=discharge_id, type=valid_not_empty)
         parser.add_argument('monitorId', required=monitor_id is None, default=monitor_id, type=valid_not_empty)
-        parser.add_argument('file', type=werkzeug.FileStorage, location='files', required=False, action='append')
+        parser.add_argument('file[]', type=werkzeug.FileStorage, location='files', required=False, action='append')
         args = parser.parse_args()
         args['dataType'] = 'S'
-        files = args.pop('file')
+        files = args.pop('file[]')
         report = DischargeReport(**args)
         db.session.add(report)
         db.session.flush()
@@ -348,10 +349,10 @@ class FactorReportCollectionResource(Resource):
         parser.add_argument('enterId', required=enter_id is None, default=enter_id, type=valid_not_empty)
         parser.add_argument('dischargeId', required=discharge_id is None, default=discharge_id, type=valid_not_empty)
         parser.add_argument('monitorId', required=monitor_id is None, default=monitor_id, type=valid_not_empty)
-        parser.add_argument('file', type=werkzeug.FileStorage, location='files', required=False, action='append')
+        parser.add_argument('file[]', type=werkzeug.FileStorage, location='files', required=False, action='append')
         args = parser.parse_args()
         args['dataType'] = 'A'
-        files = args.pop('file')
+        files = args.pop('file[]')
         report = FactorReport(**args)
         db.session.add(report)
         db.session.flush()
