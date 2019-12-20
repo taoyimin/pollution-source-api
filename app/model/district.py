@@ -7,7 +7,13 @@ from . import db
 
 
 class District(db.Model):
-    # __bind_key__ = 'enterprise_home'
+    """
+    管辖区域实体类
+    attributes:
+        id: 自增长主键
+        districtCode: 区域code
+        userId: 用户表外键
+    """
 
     __table_args__ = {'schema': 'enterprise_home.dbo'}
     __tablename__ = 't_user_district'

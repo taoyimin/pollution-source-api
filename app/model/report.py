@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/10/22 19:10
-import datetime
 from sqlalchemy import func
 
 import app
@@ -30,9 +29,9 @@ class Report(db.Model):
         enterId：关联企业外键
         dischargeId：关联排口外键
         monitorId：关联监控点外键
-        enter：申报单对应的企业
-        discharge：申报单对应的排口
-        monitor：申报单对应的监控点
+        enter：对应的企业
+        discharge：对应的排口
+        monitor：对应的监控点
     """
     __table_args__ = {'schema': 'enterprise_archives.dbo'}
     __tablename__ = 't_enterprise_abnormal_info'
@@ -117,9 +116,6 @@ class DischargeReport(Report):
         "order_by": reportTime.desc()
     }
 
-    # def __init__(self, **kwargs):
-    #     self.__dict__.update(kwargs)
-
     @property
     def reportTimeStr(self):
         return self.reportTime.strftime('%Y-%m-%d')
@@ -143,9 +139,6 @@ class FactorReport(Report):
     """
     factorCode = db.Column('factor_code')
     exceptionReason = db.Column('exception_reason')
-
-    # def __init__(self, **kwargs):
-    #     self.__dict__.update(kwargs)
 
     @property
     def alarmTypeStr(self):

@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 # Author:Tao Yimin
 # Time  :2019/11/7 10:03
-import datetime
-
 from sqlalchemy import func
 
 from app.model.attachment import Attachment
@@ -24,7 +22,7 @@ class Process(db.Model):
         operateType: 操作类型 0：督办 1：处理 2：审核 3：催办 4：退回
         operateTime: 操作时间
         operateDesc: 操作描述
-        attachmentIds: 关联的附件id（多个附件用逗号隔开，PC端上传的不但以逗号分割还会以逗号结尾，APP端上传的不会以逗号结尾）
+        attachmentIds: 关联的附件id（多个附件用逗号隔开，PC端上传的不但以逗号分割还会以逗号结尾）
         orderId: 关联报警管理单外键
         order: 对应的报警管理单
     """
@@ -47,9 +45,6 @@ class Process(db.Model):
         "order_by": operateTime
     }
 
-    # def __init__(self, **kwargs):
-    #     self.__dict__.update(kwargs)
-
     @property
     def operateTypeStr(self):
         unit_str = Dictionary.query.filter_by(dictId=109, dictCode=self.operateUnit).one().dictName
@@ -68,4 +63,5 @@ class Process(db.Model):
         if self.attachmentIds:
             return Attachment.query.filter(Attachment.attachmentId.in_(self.attachmentIds.split(',')))
         else:
+            # 没有附件则返回空集合
             return Attachment.query.filter_by(attachmentId=None)

@@ -44,8 +44,5 @@ class Attachment(db.Model):
         "order_by": attachmentId
     }
 
-    # def __init__(self, **kwargs):
-    #     self.__dict__.update(kwargs)
-
     def __repr__(self):
         return '<Attachment %r>' % self.attachmentId

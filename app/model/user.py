@@ -19,6 +19,7 @@ class BaseUser:
     所有类型用户的父类
     继承验证token方法
     """
+
     @staticmethod
     @auth.verify_token
     def verify_token(token):
@@ -137,9 +138,9 @@ class AdminUser(db.Model, BaseUser):
     def rainDischargeCount(self):
         return Discharge.query.filter_by_user().filter_by(dischargeType='outletType1').count()
 
-    @property
-    def dealOrderCount(self):
-        return Order.query.filter_by_user().filter_by_state('2').count()
+    # @property
+    # def dealOrderCount(self):
+    #     return Order.query.filter_by_user().filter_by_state('2').count()
 
     # @property
     # def noPassOrderCount(self):
@@ -149,17 +150,17 @@ class AdminUser(db.Model, BaseUser):
     # def completeOrderCount(self):
     #     return Order.query.filter_by_user().filter_by_state('5').count()
     #
-    # @property
-    # def totalOrderCount(self):
-    #     return Order.query.filter_by_user().count()
+    @property
+    def totalOrderCount(self):
+        return Order.query.filter_by_user().count()
 
     @property
-    def dealDischargeReportCount(self):
-        return DischargeReport.query.filter_by_user().filter_by(state='0').count()
+    def totalDischargeReportCount(self):
+        return DischargeReport.query.filter_by_user().count()
 
     @property
-    def dealFactorReportCount(self):
-        return FactorReport.query.filter_by_user().filter_by(state='0').count()
+    def totalFactorReportCount(self):
+        return FactorReport.query.filter_by_user().count()
 
 
 class EnterUser(db.Model, BaseUser):
@@ -184,9 +185,6 @@ class EnterUser(db.Model, BaseUser):
     __mapper_args__ = {
         "order_by": userId
     }
-
-    # def __init__(self, **kwargs):
-    #     self.__dict__.update(kwargs)
 
     def __repr__(self):
         return '<EnterUser %r>' % self.userId

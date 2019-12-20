@@ -26,6 +26,14 @@ class Discharge(db.Model):
         longitude：经度
         latitude：纬度
         dischargeMonitorType：0：人工监测 1：自动监测
+        isDelete：是否删除
+        enterId：关联企业外键
+        enter：对应的企业
+        monitors：监控点集合
+        reports：申报单集合
+        dischargeReports：排口异常申报单集合
+        factorReports：因子异常申报单集合
+        factors：监测因子集合
     """
     __table_args__ = {'schema': 'enterprise_archives.dbo'}
     __tablename__ = 'T_DisChargeOut'

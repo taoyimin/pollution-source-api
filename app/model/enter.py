@@ -29,8 +29,17 @@ class Enter(db.Model):
         industryType: 行业类别
         licenseNumber: 排污许可证编码
         creditCode: 信用代码
+        isDelete: 是否删除
+        discharges: 排口集合
+        monitors: 监控点集合
+        orders: 报警管理单集合
+        reports: 申报单集合
+        dischargeReports: 排口异常申报单集合
+        longStopReports: 长期停产申报单集合
+        factorReports: 因子异常申报单集合
+        licenses: 排污许可证集合
+        factors: 监控因子集合
     """
-    # __bind_key__ = 'enterprise_archives'
     __table_args__ = {'schema': 'enterprise_archives.dbo'}
     __tablename__ = 'T_Enterprise_BasInfo'
     query_class = EnterQuery

@@ -15,8 +15,23 @@ class Monitor(db.Model):
     监控点信息实体类
     attributes:
         monitorId: 自增长主键
+        monitorName: 监控点名
+        monitorAddress: 监控点地址
+        monitorType: 监控类型
+        monitorCategory: 监控类别
+        networkType: 网络类型
+        mnCode: 数采编号
+        isDelete: 是否删除
+        enterId：关联企业外键
+        enter：对应的企业
+        dischargeId：关联排口外键
+        discharge：对应的排口
+        orders：报警管理单集合
+        reports：异常申报单集合
+        dischargeReports：排口异常申报单集合
+        factorReports：因子异常申报单集合
+        factors：监测因子集合
     """
-    # __bind_key__ = 'enterprise_archives'
     __table_args__ = {'schema': 'enterprise_archives.dbo'}
     __tablename__ = 'T_DisChargeMonitor'
     query_class = MonitorQuery

@@ -25,6 +25,12 @@ class Factor(db.Model):
         measureUpper: 测量量程上限
         measureLower: 测量量程下限
         isDelete: 是否删除
+        enterId：关联企业外键
+        enter：对应的企业
+        dischargeId：关联排口外键
+        discharge：对应的排口
+        monitorId：关联监控点外键
+        monitor：对应的监控点
     """
     __table_args__ = {'schema': 'enterprise_archives.dbo'}
     __tablename__ = 't_auto_monitor_point'
