@@ -3,7 +3,6 @@
 # Author:Tao Yimin
 # Time  :2019/10/22 19:23
 import werkzeug
-from flask import request
 from flask_restful import marshal_with, Resource, fields, reqparse
 
 import app
@@ -227,7 +226,6 @@ class LongStopReportCollectionResource(Resource):
         parser.add_argument('startTime', required=True, type=valid_not_empty)
         parser.add_argument('endTime', required=True, type=valid_not_empty)
         parser.add_argument('remark', required=True, type=valid_not_empty)
-        # parser.add_argument('enterId', required=True, type=valid_not_empty)
         parser.add_argument('enterId', required=enter_id is None, default=enter_id, type=valid_not_empty)
         args = parser.parse_args()
         args['dataType'] = 'L'
@@ -277,9 +275,6 @@ class DischargeReportCollectionResource(Resource):
         parser.add_argument('startTime', required=True, type=valid_not_empty)
         parser.add_argument('endTime', required=True, type=valid_not_empty)
         parser.add_argument('stopReason', required=True, type=valid_not_empty)
-        # parser.add_argument('enterId', required=True, type=valid_not_empty)
-        # parser.add_argument('dischargeId', required=True, type=valid_not_empty)
-        # parser.add_argument('monitorId', required=True, type=valid_not_empty)
         parser.add_argument('enterId', required=enter_id is None, default=enter_id, type=valid_not_empty)
         parser.add_argument('dischargeId', required=discharge_id is None, default=discharge_id, type=valid_not_empty)
         parser.add_argument('monitorId', required=monitor_id is None, default=monitor_id, type=valid_not_empty)
@@ -343,9 +338,6 @@ class FactorReportCollectionResource(Resource):
         parser.add_argument('startTime', required=True, type=valid_not_empty)
         parser.add_argument('endTime', required=True, type=valid_not_empty)
         parser.add_argument('exceptionReason', required=True, type=valid_not_empty)
-        # parser.add_argument('enterId', required=True, type=valid_not_empty)
-        # parser.add_argument('dischargeId', required=True, type=valid_not_empty)
-        # parser.add_argument('monitorId', required=True, type=valid_not_empty)
         parser.add_argument('enterId', required=enter_id is None, default=enter_id, type=valid_not_empty)
         parser.add_argument('dischargeId', required=discharge_id is None, default=discharge_id, type=valid_not_empty)
         parser.add_argument('monitorId', required=monitor_id is None, default=monitor_id, type=valid_not_empty)

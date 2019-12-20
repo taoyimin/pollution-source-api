@@ -3,9 +3,7 @@
 # Author:Tao Yimin
 # Time  :2019/4/28 17:16
 import datetime
-import functools
 import os
-import time
 import uuid
 
 from sqlalchemy import inspect, event
@@ -43,7 +41,8 @@ def before_compile(query):
         insp = inspect(ent['entity'])
         mapper = getattr(insp, 'mapper', None)
         if mapper and issubclass(mapper.class_,
-                                 (AdminUser, Enter, EnterUser, Attachment, Dictionary, License, LicenseFactor, Factor)):
+                                 (AdminUser, Enter, EnterUser, Attachment, Dictionary, License,
+                                  LicenseFactor, Factor)):
             # 把isDelete=0的数据保留
             query = query.enable_assertions(False) \
                 .filter(ent['entity'].isDelete == 0)
@@ -108,6 +107,9 @@ def valid_not_empty(string):
 
 
 # def valid_email(email):
+#     """
+#     验证邮箱是否合法
+#     """
 #     if re.match(r'^[0-9a-zA-Z_]{0,19}@[0-9a-zA-Z]{1,13}\.[com,cn,net]{1,3}$', email):
 #         return True
 #     else:

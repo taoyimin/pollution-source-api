@@ -65,6 +65,9 @@ class EnterQuery(CommonQuery):
             elif g.type == app.app.config['ENTER_USER_TYPE']:
                 # 企业用户
                 return self.filter(Enter.enterId == g.user.enterId)
+            elif g.type == app.app.config['OPERATION_USER_TYPE']:
+                # 环保用户
+                return self.filter(Enter.enterId == g.user.enterId)
             else:
                 abort(400, message='根据用户过滤掉不在管辖区域的企业失败，因为未知的用户类型！type=%d' % g.type)
         else:

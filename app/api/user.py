@@ -108,7 +108,6 @@ class AdminUserCollectionResource(Resource):
 
 
 class AdminTokenResource(Resource):
-    # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userName', type=valid_user_name, required=True)
@@ -124,7 +123,6 @@ class AdminTokenResource(Resource):
 
 
 class EnterTokenResource(Resource):
-    # @marshal_with(login_fields)
     def post(self):
         parser = reqparse.RequestParser()
         parser.add_argument('userName', type=valid_user_name, required=True)
@@ -151,7 +149,7 @@ class IndexResource(Resource):
                     "34": "1, 6*, 80*, 96*, 88.89*",
                     "80": "1,42*,15*,8*",
                     "60": "1, %s,%s,%s" %
-                          (g.user.dealOrderCount, g.user.dealDischargeReportCount, g.user.dealFactorReportCount),
+                          (g.user.totalOrderCount, g.user.totalDischargeReportCount, g.user.totalFactorReportCount),
                     "70": "1,1452*,785*,452*,15*,23*,1*",
                     "50": "1,%s,0*,%s" % (g.user.rainEnterCount, g.user.rainDischargeCount),
                     "40": "1,%s,%s,257*,%s,%s,%s,%s,%s,0*" %
