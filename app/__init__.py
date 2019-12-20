@@ -9,14 +9,6 @@ from app import model
 from app.api import api_blueprint
 
 app = Flask(__name__)
-# 配置数据库连接
-app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_archives?charset=utf8'
-app.config['SQLALCHEMY_BINDS'] = {
-    'enterprise_archives': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_archives?charset=utf8',
-    'enterprise_home': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/enterprise_home?charset=utf8',
-    'pollution_report': 'mssql+pymssql://admin:jxhb#2019@182.106.189.190:1433/pollution_report?charset=utf8'
-}
 # 生成token用的密钥
 app.config['SECRET_KEY'] = 'taoyimin'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
